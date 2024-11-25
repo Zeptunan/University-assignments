@@ -1,0 +1,66 @@
+--allsh436 Allan Shamseddin
+
+with Ada.Float_Text_IO; use Ada.Float_Text_IO;
+with Ada.Text_IO;       use Ada.Text_IO;
+with Ada.Integer_Text_IO;    use Ada.Integer_Text_IO;
+
+procedure io3 is 
+   Fm: Float; -- momsprocent
+   Fp: Float; -- första 
+   Sp: Float; -- sista pris
+   S: Float; -- steg
+   I: Integer; 
+begin
+   loop 
+   Put("Första pris: ");
+   Get(Fp);
+     if(Fp >  0.0) then exit; 
+     end if;
+     Put("Felaktigt värde!");
+     New_Line;
+   end loop;  
+   
+   loop
+   Put("Sista pris: ");
+   Get(Sp);
+     if(Sp > Fp) then exit;
+     end if;
+     Put("Felaktigt värde!");
+     New_Line;
+   end loop;
+   
+   loop
+   Put("Steg: ");
+   Get(S);
+    if(S > 0.0) then exit;
+    end if;
+    Put("Felaktigt värde!");
+    New_Line;
+   end loop;
+   
+   loop
+      Put("Momsprocent: ");
+      Get(Fm);
+      if(Fm >= 0.0) and(Fm <= 100.0) then exit;
+      end if;
+      Put("Felaktigt värde!");
+      New_Line;
+      
+   end loop;
+        
+   New_Line;      
+   Put("============ Momstabell ============");
+   New_Line;
+   Put("Pris utan moms  Moms   Pris med moms");
+   New_Line; 
+   
+   for Sp=>Fp in I range 1..10 loop
+      Put(Fp, Fore=>6, Aft=>2, Exp=>0);
+	  
+   end loop;
+   
+
+      
+    
+   
+end Io3;

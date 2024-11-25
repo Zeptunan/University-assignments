@@ -1,0 +1,151 @@
+V "GNAT Lib v10"
+P ZX
+
+RN
+RV NO_DIRECT_BOOLEAN_OPERATORS
+RV NO_EXCEPTIONS
+RV NO_IO
+RV NO_STANDARD_STORAGE_POOLS
+RV NO_DYNAMIC_SIZED_OBJECTS
+RV NO_ELABORATION_CODE
+RV SPARK_05
+
+U date_package%b	date_package.adb	fba66990 OO PK
+W ada%s			ada.ads			ada.ali
+Z ada.exceptions%s	a-except.adb		a-except.ali
+W ada.float_text_io%s	a-flteio.ads		a-flteio.ali
+W ada.integer_text_io%s	a-inteio.ads		a-inteio.ali
+Z ada.tags%s		a-tags.adb		a-tags.ali
+W ada.text_io%s		a-textio.adb		a-textio.ali
+Z system%s		system.ads		system.ali
+Z system.exception_table%s  s-exctab.adb	s-exctab.ali
+Z system.standard_library%s  s-stalib.adb	s-stalib.ali
+Z system.val_int%s	s-valint.adb		s-valint.ali
+
+U date_package%s	date_package.ads	2443d989 EE OO PK
+Z ada.tags%s		a-tags.adb		a-tags.ali
+Z system%s		system.ads		system.ali
+Z system.exception_table%s  s-exctab.adb	s-exctab.ali
+Z system.standard_library%s  s-stalib.adb	s-stalib.ali
+
+D ada.ads		20210408115627 76789da1 ada%s
+D a-except.ads		20210408115627 a7106115 ada.exceptions%s
+D a-flteio.ads		20210408115627 e18a47a0 ada.float_text_io%s
+D a-inteio.ads		20210408115627 f64b89a4 ada.integer_text_io%s
+D a-ioexce.ads		20210408115627 e4a01f64 ada.io_exceptions%s
+D a-stream.ads		20210408115627 119b8fb3 ada.streams%s
+D a-tags.ads		20210408115627 491b781d ada.tags%s
+D a-textio.ads		20210408115627 aef4d56d ada.text_io%s
+D a-tiflio.ads		20210408115627 bf196650 ada.text_io.float_io%s
+D a-tiinio.ads		20210408115627 390edddb ada.text_io.integer_io%s
+D a-unccon.ads		20210408115627 0e9b276f ada.unchecked_conversion%s
+D date_package.ads	20221209143556 2443d989 date_package%s
+D date_package.adb	20221209145337 66d0ab70 date_package%b
+D interfac.ads		20210408115627 5ab55268 interfaces%s
+D i-cstrea.ads		20210408115627 e53d8b8e interfaces.c_streams%s
+D system.ads		20210408115627 4635ec04 system%s
+D s-crtl.ads		20210408115627 0ebbdb71 system.crtl%s
+D s-exctab.ads		20210408115627 54135002 system.exception_table%s
+D s-ficobl.ads		20210408115627 078245e4 system.file_control_block%s
+D s-parame.ads		20210408115627 48ec542b system.parameters%s
+D s-secsta.ads		20210408115627 20bbe636 system.secondary_stack%s
+D s-soflin.ads		20210408115627 a7318a92 system.soft_links%s
+D s-stache.ads		20210408115627 a37c21ec system.stack_checking%s
+D s-stalib.ads		20210408115627 09bd3940 system.standard_library%s
+D s-stoele.ads		20210408115627 2dc34a04 system.storage_elements%s
+D s-traent.ads		20210408115627 005bf670 system.traceback_entries%s
+D s-unstyp.ads		20210408115627 34867c83 system.unsigned_types%s
+D s-valint.ads		20210408115627 b5ff6963 system.val_int%s
+D s-wchcon.ads		20210408115627 1b7d22d2 system.wch_con%s
+G a e
+G c Z s b [get date_package 5 14 none]
+G c Z s b [put date_package 6 14 none]
+G c Z s b [next_date date_package 8 13 none]
+G c Z s b [previous_date date_package 9 13 none]
+G c Z s b [Ogt date_package 11 13 none]
+G c Z s b [Olt date_package 12 13 none]
+G c Z s b [Oeq date_package 13 13 none]
+G c Z s s [date_typeIP date_package 21 9 none]
+G c Z b b [check_leap date_package 12 13 none]
+G c Z b b [is_day_valid date_package 35 14 none]
+G c Z b b [get date_package 58 14 none]
+G c Z b b [zero date_package 118 14 none]
+X 1 ada.ads
+16K9*Ada 20e8 13|1r6 1r40 2r6 2r40 3r6 3r40
+X 3 a-flteio.ads
+20K13*Float_Text_IO[9|46] 13|2w10 2r44
+X 4 a-inteio.ads
+18K13*Integer_Text_IO[10|46] 13|3w10 3r44
+X 8 a-textio.ads
+57K13*Text_IO 727e16 13|1w10 1r44
+86I12*Field{integer}
+273U14*Skip_Line 13|95s7
+282V13*End_Of_Line{boolean} 13|65s19
+381U14*Get 13|61s10 69s16
+465U14*Put 13|122s7 124s10
+X 10 a-tiinio.ads
+80U14*Put 13|126s10[4|18] 134s7[4|18]
+82i7 Width{8|86I12} 13|126r20[4|18] 134r23[4|18]
+X 12 date_package.ads
+1K9*Date_Package 21E9 25l5 25e17 13|5b14 245l5 245t17
+3R9*Date_Type 5r31 6r30 8r35 8r53 9r39 9r57 11r35 12r35 13r35 21c9 23e14
+. 13|12r35 35r39 80r30 130r30 144r35 144r53 147r11 177r39 177r57 180r10 209r35
+. 228r35 233r35
+5U14*Get 5<19 13|80b14 112l8 112t11
+5r19 datum{3R9} 13|80b18 97m7 98m7 99m7 101r10 101r31 105r10 105r29 109r27
+6U14*Put 6>19 13|130b15 138l8 138t11
+6r19 datum{3R9} 13|130b19 134r11 135r12 136r12
+8V13*Next_Date{3R9} 8>24 13|144b13 171l8 171t17
+8r24 datum{3R9} 13|144b24 149r11 150r15 152r11 152r32 156r14 156r35 161r32
+. 161r46 165r14 165r35
+9V13*Previous_Date{3R9} 9>28 13|177b13 202l8 202t21
+9r28 datum{3R9} 13|177b28 183r12 184r15 188r14 188r35 192r14 192r36 196r14
+. 196r35
+11V14*">"{boolean} 11>18 11>24 13|228b14 231l9 231t11
+11r18 Left{3R9} 13|228b18 230r22
+11r24 Right{3R9} 13|228b24 230r14
+12V14*"<"{boolean} 12>18 12>24 13|209b14 226l9 226t11 230s20
+12r18 Left{3R9} 13|209b18 211r10 214r9 215r9 218r9 219r9 220r9
+12r24 Right{3R9} 13|209b24 211r22 214r22 215r22 218r22 219r22 220r20
+13V14*"="{boolean} 13>18 13>24 13|233b14 243l9 243t11
+13r18 Left{3R9} 13|233b18 236r9 237r9 238r9
+13r24 Right{3R9} 13|233b24 236r23 237r23 238r23
+15X4*Format_Error 13|87r22 91r22
+16X4*Year_Error 13|102r16
+17X4*Month_Error 13|106r16
+18X4*Day_Error 13|41r16 110r16
+22i7*Year{integer} 13|18r17 22r14 22r41 97m13 101r16 101r37 134r17 166m12
+. 166r21 197m12 197r22 211r15 211r28 214r14 214r28 218r14 218r28 236r14 236r29
+22i13*Month{integer} 13|40r62 46r31 98m13 105r16 105r35 135r18 152r17 156r20
+. 158m12 158r22 161r16 161r52 162m12 162r22 165r20 167m12 188r20 189m12 189r22
+. 192r20 193m12 193r23 194r23 196r20 199m12 215r14 215r28 219r14 219r28 237r14
+. 237r29
+22i20*Day{integer} 13|40r42 43r39 46r16 46r48 99m13 136r18 150m9 150r21 152r38
+. 154m12 156r41 159m12 161r38 163m12 165r41 168m12 184m9 184r21 188r41 190m12
+. 192r42 194m12 196r41 198m12 220r14 220r26 238r14 238r29
+X 13 date_package.adb
+7X4 Length_Error 66r25
+12V13 Check_Leap{boolean} 12b13 12>24 29l8 29t18 40s14 43s11 152s52 156s55
+. 188s54
+12r24 Datum{12|3R9} 18r11 22r8 22r35
+14b7 Bool{boolean} 19m10 24m10 27r15
+35V14 Is_Day_Valid{boolean} 35b14 35>28 52l8 52t20 109s14 185s10
+35r28 Datum{12|3R9} 40r25 40r36 40r56 43r22 43r33 46r10 46r25 46r42
+36A12 Month_type(integer)<integer> 37r10
+37a7 M{36A12} 46r23
+58U14 Get 58b14 58<18 74l8 74t11 83s7
+58a18 Item{string} 61m14 61r14 61r19 62r13 62r18 64r23 64r39 69m20 69r20
+64i18 I{integer} 69r25
+81a7 S{string} 83m11 86r16 90r16 97r37 98r37 99r37
+84i11 I{integer} 85r13 85r25 86r18 90r18
+118U14 Zero 118b14 118>19 128l8 128t12 135s7 136s7
+118i19 Item{integer} 123r10 126r14
+145A12 Month(integer)<integer> 146r10
+146a7 M{145A12} 161r44
+147r7 D{12|3R9} 149m7 150m7 152r63 154m10 156r66 158m10 158r20 159m10 161r14
+. 162m10 162r20 163m10 166m10 166r19 167m10 168m10 170r14
+178A12 Month(integer)<integer> 179r10
+179a7 M{178A12} 194r19
+180r7 T{12|3R9} 183m7 184m7 185r23 186r17 188r65 189m10 189r20 190m10 193m10
+. 193r21 194m10 194r21 197m10 197r20 198m10 199m10 201r14
+

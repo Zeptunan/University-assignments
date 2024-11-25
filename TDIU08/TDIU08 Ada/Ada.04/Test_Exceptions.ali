@@ -1,0 +1,138 @@
+V "GNAT Lib v10"
+M P W=b
+P ZX
+
+RN
+RV NO_DIRECT_BOOLEAN_OPERATORS
+RV NO_EXCEPTION_HANDLERS
+RV NO_EXCEPTIONS
+RV NO_IO
+RV NO_IMPLICIT_CONDITIONALS
+RV NO_STANDARD_STORAGE_POOLS
+RV NO_DYNAMIC_SIZED_OBJECTS
+RV SPARK_05
+
+U test_exceptions%b	Test_Exceptions.adb	292c9080 NE OO SU
+W ada%s			ada.ads			ada.ali
+Z ada.exceptions%s	a-except.adb		a-except.ali
+W ada.float_text_io%s	a-flteio.ads		a-flteio.ali
+W ada.integer_text_io%s	a-inteio.ads		a-inteio.ali
+Z ada.tags%s		a-tags.adb		a-tags.ali
+W ada.text_io%s		a-textio.adb		a-textio.ali
+Z system%s		system.ads		system.ali
+Z system.concat_2%s	s-conca2.adb		s-conca2.ali
+Z system.exception_table%s  s-exctab.adb	s-exctab.ali
+Z system.standard_library%s  s-stalib.adb	s-stalib.ali
+Z system.val_int%s	s-valint.adb		s-valint.ali
+
+D ada.ads		20210408115627 76789da1 ada%s
+D a-except.ads		20210408115627 a7106115 ada.exceptions%s
+D a-flteio.ads		20210408115627 e18a47a0 ada.float_text_io%s
+D a-inteio.ads		20210408115627 f64b89a4 ada.integer_text_io%s
+D a-ioexce.ads		20210408115627 e4a01f64 ada.io_exceptions%s
+D a-stream.ads		20210408115627 119b8fb3 ada.streams%s
+D a-tags.ads		20210408115627 491b781d ada.tags%s
+D a-textio.ads		20210408115627 aef4d56d ada.text_io%s
+D a-tiflio.ads		20210408115627 bf196650 ada.text_io.float_io%s
+D a-tiinio.ads		20210408115627 390edddb ada.text_io.integer_io%s
+D a-unccon.ads		20210408115627 0e9b276f ada.unchecked_conversion%s
+D interfac.ads		20210408115627 5ab55268 interfaces%s
+D i-cstrea.ads		20210408115627 e53d8b8e interfaces.c_streams%s
+D system.ads		20210408115627 4635ec04 system%s
+D s-conca2.ads		20210408115627 02a0d7d0 system.concat_2%s
+D s-crtl.ads		20210408115627 0ebbdb71 system.crtl%s
+D s-exctab.ads		20210408115627 54135002 system.exception_table%s
+D s-ficobl.ads		20210408115627 078245e4 system.file_control_block%s
+D s-parame.ads		20210408115627 48ec542b system.parameters%s
+D s-secsta.ads		20210408115627 20bbe636 system.secondary_stack%s
+D s-soflin.ads		20210408115627 a7318a92 system.soft_links%s
+D s-stache.ads		20210408115627 a37c21ec system.stack_checking%s
+D s-stalib.ads		20210408115627 09bd3940 system.standard_library%s
+D s-stoele.ads		20210408115627 2dc34a04 system.storage_elements%s
+D s-traent.ads		20210408115627 005bf670 system.traceback_entries%s
+D s-unstyp.ads		20210408115627 34867c83 system.unsigned_types%s
+D s-valint.ads		20210408115627 b5ff6963 system.val_int%s
+D s-wchcon.ads		20210408115627 1b7d22d2 system.wch_con%s
+D Test_Exceptions.adb	20221114181853 90198be9 test_exceptions%b
+G a e
+G c Z b b [test_exceptions standard 6 11 none]
+X 1 ada.ads
+16K9*Ada 20e8 29|2r6 2r31 3r6 3r31 4r6 4r31
+X 3 a-flteio.ads
+20K13*Float_Text_IO[9|46] 29|4w10 4r35
+X 4 a-inteio.ads
+18K13*Integer_Text_IO[10|46] 29|3w10 3r35
+X 8 a-textio.ads
+57K13*Text_IO 727e16 29|2w10 2r35
+86I12*Field{integer}
+264U14*New_Line 29|63s13 108s7 268s10
+273U14*Skip_Line 29|43s16 58s13 98s7 102s7 106s7
+282V13*End_Of_Line{boolean} 29|77s19
+381U14*Get 29|73s10 81s16
+392U14*Put 29|62s13
+465U14*Put 29|26s13 27s13 29s13 31s13 34s16 36s16 42s16 55s13 60s13 96s7
+. 100s7 104s7 107s7 223s7 226s10 230s7 233s10 246s16 248s16 253s19 255s19
+. 257s19 259s19 264s10 266s10 281s7
+508U14*Put_Line 29|54s13 95s7 99s7 103s7 242s7
+548X4*Data_Error 29|41r18
+X 10 a-tiinio.ads
+59U14*Get 29|32s13[4|18] 56s13[4|18] 57s13[4|18]
+80U14*Put 29|28s13[4|18] 30s13[4|18] 61s13[4|18] 222s7[4|18] 229s7[4|18]
+. 236s7[4|18] 247s16[4|18] 265s10[4|18]
+82i7 Width{8|86I12} 29|28r22[4|18] 30r21[4|18] 61r24[4|18] 222r22[4|18] 229r23[4|18]
+. 236r21[4|18] 247r23[4|18] 265r17[4|18]
+X 29 Test_Exceptions.adb
+6U11*Test_Exceptions 6b11 285l5 285t20
+8X4 Length_Error 78r25 214r15 280r6
+8X18 Format_Error 118r22 122r22 215r19 252r21
+8X32 Year_Error 140r16 254r21
+8X44 Month_Error 131r16 256r21
+8X57 Day_Error 177r16 183r19 188r19 258r21
+10R9 Date_Type 13e17 16r23 144r35 155r39 173r36 192r37 202r28 220r28
+12i10 Year{integer} 146r15 148r18 157r35 196r26 209m15 222r16
+12i16 Month{integer} 157r61 162r40 165r33 182r17 182r33 182r49 182r65 182r81
+. 197r27 210m15 225r15 229r16
+12i23 Day{integer} 157r15 162r57 165r15 176r16 176r33 180r15 211m15 232r15
+. 236r16
+15A9 Date_Arr_Type(10R9)<integer> 240r15
+20U14 Get_Value_Safe 20b14 20>29 20>34 21<29 47l8 47t22 59s13
+20i29 Min{integer} 28r17 35r27
+20i34 Max{integer} 30r17 33r24
+21i29 Value{integer} 32m17 33r16 35r19
+49U14 Del1 49b14 67l8 67t12 275s4
+50i10 Min{integer} 56m17 59r28
+50i15 Max{integer} 57m17 59r33
+50i19 Value{integer} 59m38 61r17
+70U14 Get 70b14 70<18 86l8 86t11 97s7 101s7 105s7 206s10
+70a18 Item{string} 73m14 73r14 73r19 74r13 74r18 76r22 76r38 81m20 81r20
+76i17 I{integer} 81r25
+88U14 Del2 88b14 109l8 109t12 276s4
+90a7 S_1{string} 97m11 99r34
+91a7 S_2{string} 101m11 103r34
+92a7 S_3{string} 105m11 107r29
+112U14 Format_Controll 112b14 112>30 126l8 126t23 207s10
+112a30 S{string} 115r16 117r16 121r16
+115i11 I{integer} 116r13 116r25 117r18 121r18
+128U14 Month_Controll 128b14 128>30 134l8 134t22 197s7
+128i30 Month{integer} 130r10 130r23
+136U14 Year_Controll 136b14 136>29 142l8 142t21 196s7
+136i29 Year{integer} 139r10 139r25
+144V13 Cen_Controll{boolean} 144b13 144>26 153l8 153t20 162s11
+144r26 Item{10R9} 146r10 148r13
+155V14 Leap_Controll{boolean} 155b14 155>29 171l8 171t21 187s18
+155r29 Item{10R9} 157r10 157r30 157r56 162r24 162r35 162r52 165r10 165r28
+173U14 Day_Controll 173b14 173>27 190l8 190t20 198s7
+173r27 Item{10R9} 176r11 176r28 180r10 182r12 182r28 182r44 182r60 182r76
+. 187r32
+192U14 Date_Controll 192b14 192>28 200l8 200t21 212s10
+192r28 Item{10R9} 196r21 197r22 198r20
+202U14 Get 202b14 202<18 218l8 218t11 249s16
+202r18 Item{10R9} 209m10 210m10 211m10 212r24
+203a7 S{string} 206m14 207r26 209r39 210r39 211r39
+220U14 Put 220b14 220>19 237l8 237t11 267s10
+220r19 Item{10R9} 222r11 225r10 229r11 232r10 236r11
+239U14 Del3 239b14 270l8 270t12 277s4
+240a7 Dates{15A9} 243r16 249m20 249r20 263r16 267r14
+243i11 I{integer} 247r20 249r26
+263i11 I{integer} 265r14 267r20
+

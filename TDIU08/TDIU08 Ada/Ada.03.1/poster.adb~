@@ -1,0 +1,218 @@
+ -- Allsh436: Arbetat enskilt
+with Ada.Text_Io, Ada.Integer_Text_IO;  use Ada.Text_Io, Ada.Integer_Text_IO;
+with Ada.Integer_Text_IO;               use Ada.Integer_Text_IO;
+with Ada.Float_Text_IO;                 use Ada.Float_Text_IO;
+
+
+procedure Poster is
+   
+   -- Datastruktur 1
+   type DS1 is
+      record
+	 
+	 W : Character;
+	 P : String(1 .. 4);
+	 
+      end record;
+   
+   procedure Get_1(DSone: out DS1) is
+      
+      Space: Character; 
+      
+   begin
+      
+      Put_Line("För DS1:");
+      Put("Mata in datamängd: ");
+      Get(DSone.W); 
+      Get(Space);
+      Get(DSone.P);
+      
+   end Get_1;
+   
+   procedure Put_1(DSone: in DS1) is
+      
+      
+      
+   begin 
+      
+      Put("Inmatad datamängd: ");
+      Put(DSone.W);
+      Put(" ");
+      Put(DSone.P);
+      
+   end Put_1;
+   
+   
+   
+   -- Datastruktur 2
+   type Sub_D is 
+      record 
+	 
+	 S : Float:= -25.498;
+	 Z : String(1 .. 4):= "AISU";
+	 
+      end record;
+   
+   type Sub_U is 
+      record 
+	 
+	 S : Float:= -66.037;
+	 Z : String(1 .. 4):= "1GCc";
+	   
+      end record;
+	 
+   type DS2 is 
+      record
+	 
+	 D : Sub_D;
+	 U : Sub_U;
+	 
+      end record;
+   
+   procedure Get_2(DSTwo: out DS2) is
+      
+      Space: Character;
+      
+   begin
+      
+      Put_Line("För DS2:");
+      Put("Mata in datamängd: ");
+      Get(DSTwo.D.S);
+      Get(Space);
+      Get(DSTwo.D.Z);
+      
+      Get(DSTwo.U.S);
+      Get(Space);
+      Get(DSTwo.U.Z);
+            
+   end Get_2;
+   
+   procedure Put_2(DSTwo: in DS2) is
+   
+   begin
+      
+      Put("Inmatad datamängd: ");
+      Put(DSTwo.D.S, Fore=>0, Aft=> 3, Exp=>0);
+      Put(" ");
+      Put(DSTwo.D.Z);
+      Put(" ");      
+      Put(DSTwo.U.S,Fore=>0, Aft=> 3, Exp=>0);
+      Put(" ");
+      Put(DSTwo.U.Z);
+      
+   end Put_2;
+   
+   
+   -- Datastruktur 3
+   type Sub_J is 
+      record
+	 
+	 Y: Character:= '9';
+	 Q: Character:= 'p';
+	 
+      end record; 
+   
+   type Sub_B is
+      record
+	 Y: Character:= 'J';
+	 Q: Character:= 'o';
+      end record;
+   
+   type Sub_O is 
+      record
+	 
+	 T: Boolean:= False;
+	 L: Character:= '5';
+	 
+      end record;
+   
+   type DS3 is 
+      record
+	 
+	 J: Sub_J;
+	 B: Sub_B;
+	 O: Sub_O;
+	 
+      end record;
+   
+
+   procedure Get_3(DSThree: out DS3) is
+      
+      Space: Character;  
+      True_Or_False: Character; 
+       
+   begin 
+      
+      Put_Line("För DS3:");
+      Put("Mata in datamängd: ");            	
+      Get(DSThree.J.Y);
+      Get(Space);            
+      Get(DSThree.J.Q);
+      Get(Space);           
+      Get(DSThree.B.Y);
+      Get(Space);            
+      Get(DSThree.B.Q);
+      Get(Space);
+      
+      
+      Get(True_Or_False);
+      if True_Or_False = 'T' then
+	 DSThree.O.T:= True;
+	 
+      elsif True_Or_False = 'F' then
+	 DSThree.O.T:= False;
+      end if; 
+      
+      
+      Get(Space);
+      Get(DSThree.O.L);
+      
+   end Get_3;
+   
+   procedure Put_3(DSThree: in DS3) is
+      
+   begin 
+      
+      Put("Inmatad datamängd: ");
+      Put(DSThree.J.Y);
+      Put(" ");            
+      Put(DSThree.J.Q);
+      Put(" ");            
+      Put(DSThree.B.Y);
+      Put(" ");     
+      Put(DSThree.B.Q);
+      Put(" ");
+      
+      
+      if DSThree.O.T then
+	 Put("True");
+	 
+      elsif not DSThree.O.T then 
+	 Put("False");    
+      end if;
+      
+      
+      Put(" ");
+      Put(DSThree.O.L);   
+      
+   end Put_3;
+   
+   
+   DS1: DS1_Type;
+   DSTwo: DS2;
+   DSThree: DS3;
+   
+begin
+   
+   Get_1(DSone);
+   Put_1(DSone);
+   
+   New_Line(2);
+   Get_2(DSTwo);
+   Put_2(DSTwo);
+   
+   New_Line(2);
+   Get_3(DSThree);
+   Put_3(DSThree);
+   
+end Poster;

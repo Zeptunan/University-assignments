@@ -1,0 +1,126 @@
+V "GNAT Lib v10"
+M P W=b
+P ZX
+
+RN
+RV NO_FLOATING_POINT
+RV NO_IO
+RV SPARK_05
+
+U poster%b		poster.adb		39825163 NE OO SU
+W ada%s			ada.ads			ada.ali
+W ada.float_text_io%s	a-flteio.ads		a-flteio.ali
+W ada.integer_text_io%s	a-inteio.ads		a-inteio.ali
+W ada.text_io%s		a-textio.adb		a-textio.ali
+
+D ada.ads		20210408115627 76789da1 ada%s
+D a-except.ads		20210408115627 a7106115 ada.exceptions%s
+D a-flteio.ads		20210408115627 e18a47a0 ada.float_text_io%s
+D a-inteio.ads		20210408115627 f64b89a4 ada.integer_text_io%s
+D a-ioexce.ads		20210408115627 e4a01f64 ada.io_exceptions%s
+D a-stream.ads		20210408115627 119b8fb3 ada.streams%s
+D a-tags.ads		20210408115627 491b781d ada.tags%s
+D a-textio.ads		20210408115627 aef4d56d ada.text_io%s
+D a-tiflio.ads		20210408115627 bf196650 ada.text_io.float_io%s
+D a-tiinio.ads		20210408115627 390edddb ada.text_io.integer_io%s
+D a-unccon.ads		20210408115627 0e9b276f ada.unchecked_conversion%s
+D interfac.ads		20210408115627 5ab55268 interfaces%s
+D i-cstrea.ads		20210408115627 e53d8b8e interfaces.c_streams%s
+D poster.adb		20221106213103 76fcc3ae poster%b
+D system.ads		20210408115627 4635ec04 system%s
+D s-crtl.ads		20210408115627 0ebbdb71 system.crtl%s
+D s-exctab.ads		20210408115627 54135002 system.exception_table%s
+D s-ficobl.ads		20210408115627 078245e4 system.file_control_block%s
+D s-parame.ads		20210408115627 48ec542b system.parameters%s
+D s-secsta.ads		20210408115627 20bbe636 system.secondary_stack%s
+D s-soflin.ads		20210408115627 a7318a92 system.soft_links%s
+D s-stache.ads		20210408115627 a37c21ec system.stack_checking%s
+D s-stalib.ads		20210408115627 09bd3940 system.standard_library%s
+D s-stoele.ads		20210408115627 2dc34a04 system.storage_elements%s
+D s-traent.ads		20210408115627 005bf670 system.traceback_entries%s
+D s-unstyp.ads		20210408115627 34867c83 system.unsigned_types%s
+D s-wchcon.ads		20210408115627 1b7d22d2 system.wch_con%s
+G a e
+G c Z b b [poster standard 7 11 none]
+X 1 ada.ads
+16K9*Ada 20e8 14|2r6 2r19 2r45 2r58 3r6 3r45 4r6 4r45
+X 3 a-flteio.ads
+20K13*Float_Text_IO[9|46] 14|4w10 4r49
+X 4 a-inteio.ads
+18K13*Integer_Text_IO[10|46] 14|2w23 2r62 3w10 3r49
+X 8 a-textio.ads
+57K13*Text_IO 727e16 14|2w10 2r49
+86I12*Field{integer}
+264U14*New_Line 14|216s4 224s4
+273U14*Skip_Line 14|212s4 220s4 228s4
+381U14*Get 14|54s7 55s7 79s7 91s7 125s7 126s7 127s7 138s7 145s7 146s7 159s7
+. 161s7
+392U14*Put 14|65s7 171s7 173s7 188s7
+454U14*Get 14|56s7 80s7
+465U14*Put 14|66s7 67s7 102s7 103s7 113s7 172s7 182s10 185s10 187s7 196s7
+. 198s7 210s4 213s4 218s4 221s4 226s4 229s4
+508U14*Put_Line 14|209s4 217s4 225s4
+X 9 a-tiflio.ads
+60U14*Get 14|78s7[3|20]
+82U14*Put 14|101s7[3|20]
+84i7 Fore{8|86I12} 14|101r19[3|20]
+85i7 Aft{8|86I12} 14|101r28[3|20]
+86i7 Exp{8|86I12} 14|101r36[3|20]
+X 14 poster.adb
+7U11*Poster 7b11 232l5 232t11
+10R9 Post_Type1 14e17 48r28 61r27 203r8
+12e10 W{character} 54m16 65r16
+13a10 P{string} 56m16 67r16
+17R9 Post_Type2_U 21e17 25r15 72r28 97r27
+19f10 S{float} 78m16 101r16
+20a10 Z{string} 80m16 103r16
+23R9 Post_Type2 26e17 84r28 108r27 204r8
+25r10 D{17R9} 90m16 112r16
+25r12 U{17R9} 92m16 114r16
+30R9 Post_Type3_U 33e17 43r12 44r12 119r29 168r27
+32e10 Y{character} 125m16 171r16
+32e12 Q{character} 127m16 173r16
+35R9 Post_Type3_U2 39e17 45r12 132r29 177r27
+37b10 T{boolean} 140m15 142m15 181r20 184r20
+38e10 L{character} 146m16 188r16
+41R9 Post_Type3 46e17 151r29 192r27 205r8
+43r10 J{30R9} 158m16 195r16
+44r10 B{30R9} 160m16 197r16
+45r10 O{35R9} 162m16 199r16
+48U14 Get 48b14 48<18 58l8 58t11 211s4
+48r18 Item{10R9} 54m11 54r11 56m11 56r11
+50e7 C{character} 55m11
+61U14 Put 61b14 61>18 69l8 69t11 214s4
+61r18 Item{10R9} 65r11 67r11
+72U14 Get 72b14 72<18 82l8 82t11 90s7 92s7
+72r18 Item{17R9} 78m11 78r11 80m11 80r11
+74e7 C{character} 79m11
+84U14 Get 84b14 84<18 94l8 94t11 219s4
+84r18 Item{23R9} 90m11 90r11 92m11 92r11
+86e7 C{character} 91m11
+97U14 Put 97b14 97>18 105l8 105t11 112s7 114s7
+97r18 Item{17R9} 101r11 103r11
+108U14 Put 108b14 108>18 116l8 116t11 222s4
+108r18 Item{23R9} 112r11 114r11
+119U14 Get 119b14 119<18 129l8 129t11 158s7 160s7
+119r18 Item{30R9} 125m11 125r11 127m11 127r11
+121e7 FT{character}
+121e11 C{character} 126m11
+132U14 Get 132b14 132<18 148l8 148t11 162s7
+132r18 Item{35R9} 140m10 142m10 146m11 146r11
+134e7 FT{character} 138m11 139r10
+134e11 C{character} 145m11
+151U14 Get 151b14 151<18 165l8 165t11 227s4
+151r18 Item{41R9} 158m11 158r11 160m11 160r11 162m11 162r11
+154e7 FT{character}
+154e11 C{character} 159m11 161m11
+168U14 Put 168b14 168>18 175l8 175t11 195s7 197s7
+168r18 Item{30R9} 171r11 173r11
+177U14 Put 177b14 177>18 190l8 190t11 199s7
+177r18 Item{35R9} 181r15 184r15 188r11
+192U14 Put 192b14 192>18 201l8 201t11 230s4
+192r18 Item{41R9} 195r11 197r11 199r11
+203r4 DS1{10R9} 211m8 214r8
+204r4 DS2{23R9} 219m8 222r8
+205r4 DS3{41R9} 227m8 230r8
+

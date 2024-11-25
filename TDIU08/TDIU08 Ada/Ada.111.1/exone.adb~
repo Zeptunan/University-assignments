@@ -1,0 +1,110 @@
+-- Allsh436:
+with Ada.Text_IO;         use Ada.Text_IO;
+with Ada.Float_Text_IO;   use Ada.Float_Text_IO; 
+with Ada.Integer_Text_IO; use Ada.Integer_Text_IO;
+with Ada.Numerics.Elementary_Functions; use Ada.Numerics.Elementary_Functions;
+with Ada.Numerics;                      use Ada.Numerics;
+
+procedure Exone is
+   
+   
+   
+    -- Deluppgift 1
+   
+   function Area_Av_Triangel(S : in Float) return Float is 
+   
+      Area: Float;
+   
+   begin
+      
+      Area:= S * (S * sqrt(3.0) / 2.0) / 2.0;
+      return Area; 
+      
+   end Area_Av_Triangel;
+   
+   
+   
+   -- Deluppgift 2
+   
+   procedure Kvoten_Av(Flyt: in Float;					     
+   		       Str: in String;
+   		      Kvot: out Integer) is 
+      
+      F: Float := Float'Value(Str);  
+     
+   begin
+
+      Kvot:= Integer(Float'Rounding(Flyt/(Float'Value(Str))+0.5));
+        
+   end Kvoten_Av;
+   
+   
+   
+   -- Deluppgift 3
+   
+   function "/"(Char: in  String; 
+		Int: in Integer) return Float is 
+      
+      I: Integer := Integer'Value(Char);
+            
+   begin
+      
+      return Float(Integer'Value(Char)) / Float(Int);     				             
+      
+   end "/";
+   
+         
+       S:           Float; 
+    Area:           Float;
+    Kvot:         Integer;
+    Flyt:           Float;
+     Str:  String(1 .. 3);
+    Char:  String(1 .. 1); 
+     Int:         Integer; 
+   Quota:           Float;
+              
+begin
+   
+   Put("Mata in längden: ");
+   Get(S);
+   
+   Area:= Area_Av_Triangel(S);
+   
+   Put("Den beräknade arean blev: ");
+   Put(Area, Fore=>0, Aft=> 1, Exp=>0);
+   New_Line(2);
+   
+   
+   Put("Mata in ett flyttal: ");
+   Get(Flyt);
+   
+   Put("Mata in en sträng med exakt 3 tecken: ");
+   Get(Str); 
+   
+   Kvoten_Av(Flyt, Str, Kvot);
+   Put("Du matade in flyttalet: ");
+   Put(Flyt, Fore=>0, Aft=>1, Exp=>0);   
+   Put(" och strängen: ");
+   Put(Str);
+   Put(" och kvoten blev ");
+   Put(Kvot);
+   New_Line(2);
+   
+   
+   Put("Mata in ett tecken: ");
+   Get(Char);
+   
+   Put("Mata in ett heltal: ");
+   Get(Int);
+   
+   Quota:= Char / Int; 
+   Put("Den beräknade kvoten mellan ");
+   Put(Int, Width=>0);
+   Put(" och "); 
+   Put(Char);
+   Put(" blir ");
+   Put(Quota, Fore=>0, Aft=>1, Exp=>0);
+   
+
+   
+end Exone;
