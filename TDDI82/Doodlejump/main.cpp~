@@ -1,0 +1,47 @@
+#include <SFML/Graphics.hpp>
+#include "player.h"
+#include "platform.h"
+#include "entity.h"
+#include "world.h"
+#include "enemy.h"
+
+#include <vector>
+#include <iostream>
+
+int main()
+{
+  sf::Texture background;
+  background.loadFromFile("resources/background.png");
+  sf::Sprite backgroundSprite;
+  backgroundSprite.setTexture(background);
+  sf::RenderWindow window(sf::VideoMode(640, 960), "Doodle Jump");
+  World world;
+  
+  window.setFramerateLimit(60);
+  
+  while (window.isOpen())
+    {
+      sf::Event event;
+      while (window.pollEvent(event))
+        {
+	  if (event.type == sf::Event::Closed){
+	    window.close();
+	  }
+        }
+      world.update();
+      
+      window.clear(sf::Color::White);
+      window.draw(backgroundSprite);
+      world.draw(window);
+      window.display();
+      world.testCollision(window);
+      
+      
+      if (world.fellOff())
+        {
+	  window.close();
+        }
+    }
+  
+    return 0;
+}

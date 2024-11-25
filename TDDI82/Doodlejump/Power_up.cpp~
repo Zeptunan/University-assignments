@@ -1,0 +1,69 @@
+#include "Power_up.h"
+
+using namespace std;
+
+
+POWER_UP::Small_Boost(int X,int Y): Duration{2}, Power{2}, enemyTexture{}, enemySprite{}
+{
+
+}
+
+POWER_UP::~Small_Boost
+
+
+void POWER_UP:: Random_Spawn(x,y);
+  {
+    //Invänta möte den 10/05
+  }
+
+void POWER_UP::Sound();
+  {
+    //Invänta möte den 10/05
+  }
+
+void POWER_UP::Display_Duration();
+  {
+    return Duration; //Incase Duration wants to be used by other parts of the code
+  }
+
+// SMALL BOOST--------------------------------------------------------------------
+
+Small_Boost::Small_Boost() : Power_Up{}
+{
+sf::Texture texture;
+ if (!texture.loadFromFile("Small_Boost.png")) //Images to be added at later date.
+{
+    // error...
+}
+};
+
+void Small_Boost::Random_Spawn(X,Y);
+{
+  sprite.setPosition();
+  
+}
+
+
+
+
+// BIG BOOST------------------------------------------------------------------------
+
+Big_Boost::Big_Boost() : Power_Up{}
+{
+sf::Texture texture;
+ if (!texture.loadFromFile("Big_Boost.png")) //Images to be added at later date.
+{
+    // error...
+}
+};
+
+// PROTECTIVE SHIELD---------------------------------------------------------------------------
+
+Protective_Shield::Protective_Shield() : Power_Up{}
+{
+sf::Texture texture;
+ if (!texture.loadFromFile("Shield.png")) //Images to be added at later date.
+{
+    // error...
+}
+};

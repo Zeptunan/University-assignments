@@ -1,0 +1,9 @@
+#ifndef CONSTANTS_H
+#define CONSTANTS_H
+
+extern float windowHeight;
+extern float windowWidth;
+extern sf::Vector2f player_pos;
+extern sf::Vector2f plat_pos;
+
+#endif // CONSTANTS_H

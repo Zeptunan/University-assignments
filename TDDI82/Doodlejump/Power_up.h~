@@ -1,0 +1,57 @@
+#ifndef POWER_UP_H
+#define POWER_UP_H
+
+#include <SFML/Graphics.hpp>
+
+// Basklass för Power ups
+class POWER_UP
+{
+public:
+    POWER_UP(int X, int Y);
+    virtual ~POWER_UP();
+
+    virtual void Randow_Spawn(int x, int y) = 0; // Ren virtuella metoder
+    virtual void Sound() = 0;
+    virtual void Display_Duration() = 0;
+
+    int Duration;
+    int Power;
+
+    sf::Texture Power_up_Texture;
+    sf::Sprite Power_up_Sprite;
+};
+
+class Small_Boost : public POWER_UP
+{
+public:
+    Small_Boost(int X, int Y);
+    ~Small_Boost();
+
+    void Randow_Spawn(int x, int y) override;
+    void Sound() override;
+    void Display_Duration() override;
+};
+
+class Big_Boost : public POWER_UP
+{
+public:
+    Big_Boost(int X, int Y);
+    ~Big_Boost();
+
+    void Randow_Spawn(int x, int y) override;
+    void Sound() override;
+    void Display_Duration() override;
+};
+
+class Protective_Shield : public POWER_UP
+{
+public:
+    Protective_Shield(int X, int Y);
+    ~Protective_Shield();
+
+    void Randow_Spawn(int x, int y) override;
+    void Sound() override;
+    void Display_Duration() override;
+};
+
+#endif // POWER_UP_H

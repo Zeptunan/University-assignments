@@ -1,0 +1,108 @@
+#include "enemy.h"
+#include <iostream>
+
+// Basklass-implementation
+Enemy::Enemy(float x, float y) 
+  : Entity{"enemy", sf::Vector2f(x, y)} {
+    enemyTexture = new sf::Texture;
+    if (!enemyTexture->loadFromFile("resources/enemy.png")) {
+        std::cerr << "Failed to load enemy texture" << std::endl;
+    }
+    sprite.setTexture(*enemyTexture);
+}
+
+void Enemy::draw(sf::RenderTarget& window) {
+    window.draw(sprite);
+}
+
+sf::Rect<float> Enemy::getGlobalBounds() {
+    return sprite.getGlobalBounds();
+}
+
+sf::Rect<float> Enemy::getPlatDetection() {
+    return sf::Rect<float>(0.0, 0.0, 0.0, 0.0);
+}
+
+void Enemy::setSprite(std::string newSprite) {}
+
+// HorizontalEnemy Implementation
+HorizontalEnemy::HorizontalEnemy(float x, float y) 
+  : Enemy(x, y) {}
+
+void HorizontalEnemy::update() {
+    if (sprite.getPosition().x > 570) {
+        direction = -1;
+    }
+    else if (sprite.getPosition().x < 0) {
+        direction = 1;
+    }
+    sprite.move(direction, 0);
+}
+
+void HorizontalEnemy::collision(Entity &ent) {
+  if (!ent.hasShield) {
+    std::cout << "Player collided with horizontal enemy without shield!" << std::endl;
+    ent.isAlive = false;
+    ent.setAccel(0);
+  } else {
+    std::cout << "Player collided with horizontal enemy with shield!" << std::endl;
+    // Om spelaren har en sköld, ta bort fienden
+    sprite.setPosition(-100.0, 1000.0);
+    this->isAlive = false; // Se till att fienden tas bort korrekt
+    ent.hasShield = false;
+  }
+}
+// PlatformEnemy Implementation
+PlatformEnemy::PlatformEnemy(float x, float y)
+  : Enemy(x, y) {}
+
+void PlatformEnemy::update() {}
+
+void PlatformEnemy::collision(Entity &ent) {
+  sf::FloatRect enemyBounds = sprite.getGlobalBounds();
+  sf::FloatRect entityBounds = ent.getGlobalBounds();
+  
+  // Kontrollera om spelaren träffar ovansidan av fienden
+  if (entityBounds.top + entityBounds.height <= enemyBounds.top + 10) {
+    std::cout << "Player hit the top of the platform enemy!" << std::endl;
+    ent.setPos(sf::Vector2f(ent.getPos().x, enemyBounds.top - entityBounds.height));
+    ent.setAccel(-15); // Ge spelaren en tydlig uppåtriktad acceleration
+    this->isAlive = false; // Ta bort fienden efter att ha använts som plattform
+  } else {
+    // Om spelaren träffar underifrån eller från sidan, förlora spelet
+    std::cout << "Player hit the platform enemy from the side or bottom!" << std::endl;
+    if (!ent.hasShield) {
+      ent.isAlive = false;
+      ent.setAccel(0);
+    } else {
+      // Om spelaren har en sköld, ta bort fienden
+      sprite.setPosition(-100.0, 1000.0);
+      this->isAlive = false;
+      ent.hasShield = false;
+    }
+  }
+}
+
+// FallingEnemy Implementation
+FallingEnemy::FallingEnemy(float x, float y)
+  : Enemy(x, y) {}
+
+void FallingEnemy::update() {
+    sprite.move(0, 1);  // Rör sig neråt
+    if (sprite.getPosition().y > 960) {
+        isAlive = false;
+    }
+}
+
+
+void FallingEnemy::collision(Entity &ent) {
+  std::cout << "Collision with FallingEnemy!" << std::endl;
+  // Om en plattform kolliderar med fienden, ta bort plattformen
+  if (ent.getID() == "platform" || ent.getID() == "blue_platform" || ent.getID() == "red_platform") {
+    std::cout << "Platform collided with FallingEnemy and will be removed!" << std::endl;
+    ent.isAlive = false;
+  } else if (ent.getID() == "player") {
+    // Inget ska hända om spelaren kolliderar med den
+    std::cout << "Player collided with FallingEnemy, but nothing happens." << std::endl;
+  }
+}

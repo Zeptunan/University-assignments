@@ -1,0 +1,28 @@
+#ifndef PLATFORM_H
+#define PLATFORM_H
+
+#include "entity.h"
+#include <SFML/Graphics.hpp>
+
+class Platform : public Entity {
+public:
+    Platform( float, float, std::string );
+    Platform( sf::Vector2f pos = sf::Vector2f(), std::string ID = "");
+
+    void draw(sf::RenderTarget & ) override;
+    void update() override;
+
+    void setSprite(std::string) override;
+
+    sf::Rect<float> getGlobalBounds() override;
+
+
+private:
+    sf::Texture *pTexture;
+    float direction = 1;
+};
+
+
+
+
+#endif //PLATFORM_H

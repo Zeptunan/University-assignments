@@ -1,0 +1,54 @@
+#include "player.h"
+#include <iostream>
+
+Player::Player(std::string eID, sf::Vector2f ePos, std::vector<sf::Rect<float>> eCollisionVector)
+    : Entity(eID, ePos, eCollisionVector), acceleration(0), left(false), right(false)
+{
+    if (!snubbe_left.loadFromFile("snubbe_left.png")) {
+        std::cerr << "Load failed" << std::endl;
+        std::exit(1);
+    }
+    if (!snubbe_right.loadFromFile("snubbe_right.png")) {
+        std::cerr << "Load failed" << std::endl;
+        std::exit(1);
+    }
+
+    player_char.setTexture(snubbe_left);
+    player_char.setPosition(ePos);
+    auto boundBox = player_char.getLocalBounds();
+    collisionVector.push_back(boundBox);
+    player_char.setOrigin(player_char.getGlobalBounds().width / 2.f, player_char.getGlobalBounds().height / 2.f);
+}
+
+Player::~Player() { } // Implementera destruktören
+
+void Player::draw(sf::RenderTarget &window) const {
+    window.draw(player_char);
+}
+
+void Player::update() {
+    handle_input();
+    gravity();
+}
+
+void Player::handle_input() {
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) || sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
+        player_char.setTexture(snubbe_left);
+        move(-5.0, 0);
+    }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) || sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+        player_char.setTexture(snubbe_right);
+        move(5.0, 0);
+    }
+}
+
+void Player::gravity() {
+    for (acceleration = 0; acceleration < 2.0;) {
+        acceleration += 0.2;
+        move(0, acceleration);
+    }
+}
+
+sf::Rect<float> Player::getGlobalBounds() {
+    return player_char.getGlobalBounds();
+}

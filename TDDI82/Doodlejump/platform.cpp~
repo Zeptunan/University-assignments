@@ -1,0 +1,33 @@
+#include "platform.h"
+#include <iostream>
+
+Platform::Platform()
+    : Platform("default", sf::Vector2f(0, 0))
+{ }
+
+Platform::Platform(float x, float y)
+    : Platform("default", sf::Vector2f(x, y))
+{ }
+
+Platform::Platform(std::string eID, sf::Vector2f ePos, std::vector<sf::Rect<float>> eCollisionVector)
+    : Entity(eID, ePos, eCollisionVector), pTexture(), pSprite()
+{
+    if (!pTexture.loadFromFile("platform_green.png")) {
+        std::cerr << "Failed to load platform texture" << std::endl;
+        std::exit(1);
+    }
+    pSprite.setTexture(pTexture);
+    pSprite.setPosition(ePos);
+
+    auto boundBox = pSprite.getLocalBounds();
+    collisionVector.push_back(boundBox);
+}
+
+void Platform::draw(sf::RenderTarget& target) const {
+    target.draw(pSprite);
+}
+
+void Platform::update() {
+    // Här kan du lägga till uppdateringslogik om det behövs
+    // För närvarande görs ingen uppdatering
+}
