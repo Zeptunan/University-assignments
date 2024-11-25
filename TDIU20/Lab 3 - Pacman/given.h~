@@ -1,0 +1,32 @@
+#include <stdexcept>
+#include <iostream>
+
+extern int WIDTH;
+extern int HEIGHT;
+
+struct Point
+{
+    int x;
+    int y;
+};
+bool operator==(Point const& lhs, Point const& rhs);
+bool operator!=(const Point& lhs, const Point& rhs);
+std::istream& operator>>(std::istream& is, Point& rhs);
+
+class Pacman
+{
+public:
+
+    Pacman();
+    
+    Point get_position() const;
+    void set_position(Point const& p);
+
+    Point get_direction() const;
+    void set_direction(Point const& p);
+
+private:
+    
+    Point pos {};
+    Point dir {};
+};

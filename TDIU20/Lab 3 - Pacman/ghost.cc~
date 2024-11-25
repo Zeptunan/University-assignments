@@ -1,0 +1,134 @@
+#include "ghost.h"
+#include <cmath>
+#include <string>
+
+// Komplettering: Avståndet för Clyde ska beräknas som fågelvägen.
+// Komplettering: Spöket själv ska inte ansvara för att hålla koll på om spelet är i chase eller
+//   scatter. Det får vi lösa i testprogramet. Det är en rimlig tanke men då skulle vi inte
+//   implementera två olika funktioner för att hitta punkten spöket söker sig till.
+// Komplettering: Initiera variabler med måsvingar (även i delegerande konstruktorer).
+// Komplettering: Programet ska kunna hantera en godtycklig mängd spöken. Det får alltså inte vara
+//   hårdkodat till exakt 4. 
+// Komplettering: Använd inte this i onödan.
+
+// Kommentar: Om ni hade överlagrat + - och * operatorn för Point hade ni kunnat förenkla
+//    många operationer där ni nu behöver explicit hämta x och y från en Point och räkna
+//    ut en ny position på så vis.
+
+
+// Returnerar positionen för entiteten
+Point myEntity::get_position() const { return pos; }
+
+// Sätter positionen för entiteten
+void myEntity::set_position(Point const& p) {
+    if (p.x > WIDTH or p.x < 0 || p.y > HEIGHT || p.y < 0) {
+        throw std::runtime_error("position outside valid range");
+    }
+    pos = p;
+}
+
+Ghost::Ghost(const std::string& color, const Point& scatterPoint, Pacman& pacman)
+  : color{color}, scatterPoint{scatterPoint}, current_position{}, target_position{}, pacman{pacman}  {}
+
+
+std::string Ghost::get_color() const { return color; }
+
+Point Ghost::get_scatter_point() const {
+    Point scatterPoint{};
+    // Blinky
+    if (color == "Red") {
+        scatterPoint = {WIDTH - 1, HEIGHT - 1};
+    }
+    // Pinky
+    else if (color == "Pink") {
+        scatterPoint = {0, HEIGHT -1};
+    }
+    // Clyde
+    else if (color == "Orange") {
+        scatterPoint = {0, 0};
+    }
+    // Inky
+    else if (color == "Cyan") {
+        scatterPoint = {WIDTH - 1, 0};
+    }
+    return scatterPoint;
+}
+
+Point Ghost::get_target_position() const { return target_position; }
+
+void Ghost::update_target_position(GhostMode mode) {
+    if (mode == GhostMode::Scatter) {
+        target_position = get_scatter_point();
+    } else if (mode == GhostMode::Chase) {
+        target_position = get_chase_point();
+    }
+}
+
+// BLINKY
+Blinky::Blinky(Pacman& pacman, const Point& scatterPoint)
+  : Ghost{"Red", scatterPoint, pacman} {}
+
+
+
+// Blinky jagar pacmans position direkt
+Point Blinky::get_chase_point() const { return pacman.get_position(); }
+
+bool Blinky::is_angry() const { return angry; }
+
+void Blinky::set_angry(bool angry) {
+    this->angry = angry;
+    if (angry) {
+      update_target_position(GhostMode::Chase);
+    } else {
+      update_target_position(GhostMode::Scatter);
+    }
+}
+
+// PINKY
+//  Pinky jagar en punkt 2 steg framför pacman
+Pinky::Pinky(Pacman& pacman, const Point& scatterPoint)
+    : Ghost("Pink", scatterPoint, pacman) {}
+
+Point Pinky::get_chase_point() const {
+    Point pacmanPos = pacman.get_position();
+    Point pacmanDir = pacman.get_direction();
+    return Point{pacmanPos.x + 2 * pacmanDir.x, pacmanPos.y + 2 * pacmanDir.y};
+}
+
+// CLYDE
+Clyde::Clyde(Pacman& pacman, const Point& position, const Point& scatterPoint, int distance)
+  : Ghost{"Orange", scatterPoint, pacman}, specialParameter{distance} {
+  set_position(position);
+}
+
+// In Clyde.cpp or wherever Clyde's methods are defined
+Point Clyde::get_chase_point() const {
+  Point pacmanPos = pacman.get_position();
+  double distance = sqrt(pow(pacmanPos.x - get_position().x, 2) + pow(pacmanPos.y - get_position().y, 2));
+  
+  if (distance < specialParameter) {
+    return get_scatter_point();  // Clyde should move to its scatter point
+  } else {
+    return pacmanPos;  // Clyde should chase Pacman
+  }
+}
+
+// INKY
+Inky::Inky(Pacman& pacman, const Point& scatterPoint, Blinky& blinky)
+  : Ghost{"Cyan", scatterPoint, pacman}, blinky{blinky} {}
+
+Point Inky::get_chase_point() const {
+    Point pacmanPos = pacman.get_position();
+    Point blinkyPos = blinky.get_position();
+    Point pacmanDir = pacman.get_direction();
+    Point twoStepsAhead = {pacmanPos.x + 2 * pacmanDir.x,
+                           pacmanPos.y + 2 * pacmanDir.y};
+
+    Point inkyTarget = {2 * (twoStepsAhead.x - blinkyPos.x),
+                        2 * (twoStepsAhead.y - blinkyPos.y)};
+
+    inkyTarget.x = std::max(0, std::min(inkyTarget.x, WIDTH - 1));
+    inkyTarget.y = std::max(0, std::min(inkyTarget.y, HEIGHT - 1));
+    
+    return inkyTarget;
+}

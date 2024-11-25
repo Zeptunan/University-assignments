@@ -1,0 +1,33 @@
+#include "entity.h"
+
+// Returnerar positionen för entiteten
+Point Entity::get_position() const 
+{
+    return pos;
+}
+
+// Jämför två punkter för att exempelvis hitta pacman eller spökenas position
+bool operator==(Point const& lhs, Point const& rhs)
+{
+    return lhs.x == rhs.x && lhs.y == rhs.y;
+}
+
+// Läser in en punkt från en ström för att exempelvis hitta pacman eller spökenas position
+std::istream& operator>>(std::istream& is, Point& rhs)
+{
+    return is >> rhs.x >> rhs.y;
+}
+
+// Sätter spelplanens storlek
+int WIDTH = 19;
+int HEIGHT = 22;
+
+// Sätter positionen för entiteten
+void Entity::set_position(Point const& p)
+{
+    if (p.x > WIDTH or p.x < 0 || p.y > HEIGHT || p.y < 0) 
+    {
+        throw std::runtime_error("position outside valid range");
+    }
+    pos = p;
+}

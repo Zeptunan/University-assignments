@@ -1,0 +1,215 @@
+#include "List.h"  
+
+#include <initializer_list>  
+#include <iostream> 
+#include <map>  // Ger möjlighet att använda std::map, en container som lagrar par av nycklar och värden.
+
+/* Node default constructor */
+List::Node::Node() : data(0), prev(nullptr), next(nullptr) {}  // Standardkonstruktor för Node som initierar data till 0 och pekare till nullptr.
+
+/* Node constructor */
+List::Node::Node(int value, Node* prev, Node* next) : data(value), prev(prev), next(next) {}  // Konstruktor för Node som tar ett värde och pekare till föregående och nästa nod.
+
+/* List constructor */
+List::List() : first(nullptr), last(nullptr), listSize(0) {}  // Standardkonstruktor för List som initierar första och sista noden till nullptr och storleken till 0.
+
+/* List constructor with initializer list */
+List::List(std::initializer_list<int> list) : first(nullptr), last(nullptr), listSize(0) {
+  for (int value : list) {  // Loopar igenom varje värde i initializer list och infogar det i listan.
+    this->insert(value);
+  }
+}
+
+/* List destructor */
+List::~List() { this->clear(); }  // Destruktor för List som anropar clear-funktionen för att frigöra allokerat minne.
+
+/* List copy constructor */
+List::List(const List& other) : first(nullptr), last(nullptr), listSize(0) {
+  Node* otherFirst = other.first; //Deklarerar en pekare av typen 'Node' och initialiserar den med första noden i listan 'other'.   
+  while (otherFirst != nullptr) {  // Loopar igenom 'other' listan och infogar varje nod i den nuvarande listan tills den når slutet av listan (nullptr) 
+    this->insert(otherFirst->data); //infogar data från den aktuella noden som 'otherFirst' pekar på, in i nuvarande listan 'this'. 
+    otherFirst = otherFirst->next; //Flyttar 'otherFirst'-pekaren till nästa nod i listan 'other', vilket förbereder för nästa iteration av loopen.    
+  }
+}
+
+/* List copy assignment */
+List& List::operator=(const List& other) {
+  if (this != &other) {  // Kontrollerar självtilldelning.
+    this->clear();  // Rensar den nuvarande listan.
+    Node* otherFirst = other.first; //Skapar en pekare av typen 'Node' som pekar på första noden i 'other' listan. 
+    while (otherFirst != nullptr) {  // Loopar igenom 'other' listan och infogar varje nod i den nuvarande listan.
+      this->insert(otherFirst->data); //Infogar noden som 'otherFirst'-pekaren pekar på för varje iteration.
+      otherFirst = otherFirst->next; //Flyttar 'otherFirst' till att peka på nästa nod i 'other'-listan. 
+    }
+  }
+  return *this;  // Returnerar en referens till den nuvarande listan.
+}
+
+/* List move constructor */
+List::List(List&& other) : first(other.first), last(other.last), listSize(other.listSize){ // Tar över 'other'-listans pekare samt storleken och tilldelar dem till den nuvarande listan. 
+  other.first = nullptr;  // Nollställer 'other' listan för att förhindra dubbel frigöring av minne.
+  other.last = nullptr;
+  other.listSize = 0;
+}
+
+/* List move assignment */
+List& List::operator=(List&& other) {
+  if (this != &other) {  // Kontrollerar självtilldelning.
+    this->clear();  // Rensar den nuvarande listan.
+    this->first = other.first;  // Flyttar resurser från 'other' till den nuvarande listan.
+    this->last = other.last;
+    this->listSize = other.listSize;
+    other.first = nullptr;  // Nollställer 'other' listan.
+    other.last = nullptr;
+    other.listSize = 0;
+  }
+  return *this;  // Returnerar en referens till den nuvarande listan.
+}
+
+/* Inserts a value into the list */
+void List::insert(int value) {
+  Node* newNode = new Node(value, nullptr, nullptr);  // Skapar en ny nod med det givna värdet.
+  
+  if (this->isEmpty()) {  // Om listan är tom, sätts den nya noden som både första och sista noden.
+    this->first = newNode;
+    this->last = newNode;
+  } else {
+    Node* currentNode = this->first;
+    
+    while (currentNode != nullptr && currentNode->data < value) {  // Hittar rätt position för den nya noden.
+      currentNode = currentNode->next;
+    }
+    
+    if (currentNode == this->first) {  // Om den nya noden ska vara den första noden.
+      newNode->next = currentNode;
+      currentNode->prev = newNode;
+      this->first = newNode;
+    } else if (currentNode == nullptr) {  // Om den nya noden ska vara den sista noden.
+      newNode->prev = this->last;
+      this->last->next = newNode;
+      this->last = newNode;
+    } else {  // Om den nya noden ska infogas någonstans i mitten.
+      newNode->next = currentNode;
+      newNode->prev = currentNode->prev;
+      if (currentNode->prev != nullptr) {
+        currentNode->prev->next = newNode;
+      }
+      currentNode->prev = newNode;
+    }
+  }
+  this->listSize++;  // Ökar listans storlek.
+}
+
+void List::remove(int value) {
+  if (this->isEmpty()) {  // Om listan är tom, görs ingenting.
+    return;
+  }
+  
+  Node* candidateNode = this->first;
+  
+  while (candidateNode != nullptr && candidateNode->data != value) {  // Hittar noden som ska tas bort.
+    candidateNode = candidateNode->next;
+  }
+  
+  if (candidateNode == nullptr) {  // Om noden inte hittas, görs ingenting.
+    return;
+  }
+  
+  if (candidateNode == this->first) {  // Om noden är den första noden.
+    this->first = candidateNode->next;
+    if (this->first != nullptr) {
+      candidateNode->next->prev = nullptr;
+    } else {
+      this->last = nullptr;
+    }
+  } else if (candidateNode == this->last) {  // Om noden är den sista noden.
+    this->last = candidateNode->prev;
+    candidateNode->prev->next = nullptr;
+  } else {  // Om noden är någonstans i mitten.
+    candidateNode->prev->next = candidateNode->next;
+    if (candidateNode->next != nullptr) {
+      candidateNode->next->prev = candidateNode->prev;
+    }
+  }
+  delete candidateNode;  // Frigör minnet för noden.
+  this->listSize--;  // Minskar listans storlek.
+}
+
+void List::clear() {
+  if (this->isEmpty()) {  // Om listan redan är tom, görs ingenting.
+    return;
+  }
+  
+  Node* currentNode = this->first;
+  
+  while (currentNode != nullptr) {  // Går igenom listan och frigör varje nod.
+    Node* nextNode = currentNode->next;
+    delete currentNode;
+    currentNode = nextNode;
+  }
+  
+  this->first = nullptr;  // Återställer första och sista pekaren samt listans storlek.
+  this->last = nullptr;
+  this->listSize = 0;
+}
+
+int List::get(int index) const {
+  if (index < 0 || index >= this->listSize) {  // Kontrollerar att indexet är inom giltigt intervall.
+    throw std::out_of_range("Index out of bounds");  // Kastar ett undantag om indexet är ogiltigt.
+  }
+  
+  Node* currentNode = this->first;
+  
+  for (int i = 0; i < index; i++) {  // Går igenom listan tills rätt nod hittas.
+    currentNode = currentNode->next;
+  }
+  
+  return currentNode->data;  // Returnerar datavärdet för den hittade noden.
+}
+
+int List::size() const { return this->listSize; }  // Returnerar storleken på listan.
+
+bool List::isEmpty() const { return this->listSize == 0; }  // Kontrollerar om listan är tom.
+
+void List::print() const {
+  Node* currentNode = this->first;
+  
+  std::cout << "List (size: " << this->listSize << "): First: " << this->first << " Last: " << this->last << std::endl;
+  while (currentNode != nullptr) {  // Går igenom listan och skriver ut varje nod.
+    std::cout << "[ " << currentNode->prev << " | " << currentNode->data << " | " << currentNode->next << " ] <---> ";
+    currentNode = currentNode->next;
+  }
+  std::cout << std::endl << std::endl;  // Avslutar utskriften med två radbrytningar.
+}
+
+List List::sub(std::initializer_list<int> indexes) const {
+  std::map<int, int> indexMap;  // Skapar en map för att hålla reda på index och deras förekomster.
+  
+  int prevIndex = -1;  // Används för att kontrollera att indexen är sorterade.
+  
+  for (int index : indexes) {  // Går igenom varje index i initializer list.
+    if (index < 0 || index >= this->listSize) {  // Kontrollerar att indexet är inom giltigt intervall.
+      throw std::out_of_range("Index out of bounds");  // Kastar ett undantag om indexet är ogiltigt.
+    }
+    
+    if (prevIndex >= 0 && index < prevIndex) {  // Kontrollerar att indexen är sorterade.
+      throw std::invalid_argument("Indexes are not sorted");  // Kastar ett undantag om indexen inte är sorterade.
+    }
+    
+    indexMap[index]++;  // Ökar förekomsten av indexet i mapen.
+    prevIndex = index;  // Uppdaterar prevIndex till det nuvarande indexet.
+  }
+  
+  List newList;  // Skapar en ny lista.
+  Node* currentNode = this->first;
+  
+  for (int i = 0; currentNode != nullptr && i < this->listSize; i++, currentNode = currentNode->next) {
+    if (indexMap.find(i) != indexMap.end()) {  // Kontrollerar om det nuvarande indexet finns i mapen.
+      for (int j = 0; j < indexMap[i]; j++) {  // Lägger till noden i den nya listan för varje förekomst av indexet.
+        newList.insert(currentNode->data);
+      }
+    }
+  }
+  
+  return newList;  // Returnerar den nya listan.
+}

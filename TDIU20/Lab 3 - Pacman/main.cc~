@@ -1,0 +1,261 @@
+#include "ghost.h"
+#include <iostream>
+#include <iomanip>
+#include <sstream>
+#include <vector>
+#include <algorithm>
+#include <cctype>
+using namespace std;
+
+// Komplettering: Debug-prints under utvecklingen är superbra, men koden ska lämnas in
+//    utan debug-prints.
+// Komplettering: Utskriften matchar inte körexempel.
+// Komplettering: Punkten spökena siktar på samt spökets position ska alltid skrivas ut. I inget läge 
+//   ska ett spöke flyttas till punkten den söker till.
+// Komplettering: Unique pointers är inte en del av denna kurs, och ska därför inte användas.
+// Komplettering: Testprogrammet ska delas upp i lämpliga funktioner.
+// Komplettering: Kodupprepning i kommandona för pos, dir och flytta spöken.
+// Komplettering: std::transform är inte det korrekta verktygen för att konvertera färgen till
+//   upper-case.
+
+// Kommentar: Snyggt att ni har en funktion för att slumpa ut alla spökens startposition!
+
+class Ghost_Tester {
+public:
+  Ghost_Tester() : pacman(), ghosts() {
+    ghosts.push_back(new Blinky(pacman, Point{0,0}));
+    ghosts.push_back(new Pinky(pacman, Point{0,0}));
+    ghosts.push_back(new Clyde(pacman, Point{0,0}, Point{0, 0}, 6));
+    ghosts.push_back(new Inky(pacman, Point{0,0}, *dynamic_cast<Blinky*>(ghosts[0])));
+    
+    randomize_positions();
+
+    set_ghosts_initial_mode(Ghost::GhostMode::Chase);
+    
+    debug_print_ghosts();
+  }
+  
+  ~Ghost_Tester() {
+    for (auto ghost : ghosts) {
+      delete ghost;
+    }
+  }
+
+  
+  void randomize_positions() {
+    pacman.set_position({rand() % WIDTH, rand() % HEIGHT});
+    for (auto& ghost : ghosts) {
+      ghost->set_position({rand() % WIDTH, rand() % HEIGHT});
+    }
+  }
+
+  void set_ghosts_initial_mode(Ghost::GhostMode mode) {
+    for (auto& ghost: ghosts) {
+      ghost->update_target_position(mode);
+    }
+  }
+  
+  void debug_print_ghosts() {
+  std::cout << "Pacman's position: (" << pacman.get_position().x << ", " << pacman.get_position().y << ")" << std::endl;
+  
+  for (const auto& ghost : ghosts) {
+    auto pos = ghost->get_position();
+    auto chase_point = ghost->get_chase_point();
+    auto scatter_point = ghost->get_scatter_point();
+    auto target_point = ghost->get_target_position();
+    
+    std::cout << "Ghost " << ghost->get_color() 
+	      << " current position: (" << pos.x << ", " << pos.y << ")"
+	      << " chase point: (" << chase_point.x << ", " << chase_point.y << ")"
+	      << " scatter point: (" << scatter_point.x << ", " << scatter_point.y << ")"
+	      << " target point: (" << target_point.x << ", " << target_point.y << ")"
+	      << std::endl;
+    
+    // If you want to check if Blinky is angry, you can dynamically cast it to Blinky
+    if (ghost->get_color() == "Red") {
+      Blinky* blinkyPtr = dynamic_cast<Blinky*>(ghost);
+      if (blinkyPtr != nullptr) {
+	std::cout << "Blinky is " << (blinkyPtr->is_angry() ? "angry" : "not angry") << std::endl;
+      }
+    }
+  }
+}
+  
+  
+  void run() {
+    while (true) {
+      draw_map();
+      cout << "> ";
+      
+      string line;
+      getline(cin, line);
+      istringstream iss(line);
+      
+      string command;
+      iss >> command;
+      
+      if (command == "quit") {
+	break;
+      }
+      
+      handle_command(command, iss);
+      debug_print_ghosts();
+    }
+  }
+  
+private:
+
+  void update_ghosts_target_positions(Ghost::GhostMode mode) {
+    for (auto& ghost : ghosts) {
+      ghost->update_target_position(mode);
+    }
+  }
+  
+  
+void handle_command(const string& command, istringstream& iss) {
+  if (command == "pos") {
+    set_pacman_position(iss);
+    update_ghosts_target_positions(Ghost::GhostMode::Chase);
+  } else if (command == "dir") {
+    set_pacman_direction(iss);
+  } else if (command == "move_ghost") {
+    move_ghost(iss);
+  } else if (command == "anger") {
+    set_blinky_angry(iss);
+  } else if (command == "scatter") {
+    set_ghost_mode(Ghost::GhostMode::Scatter);
+    update_ghosts_target_positions(Ghost::GhostMode::Scatter);
+  } else if (command == "chase") {
+    set_ghost_mode(Ghost::GhostMode::Chase);
+    update_ghosts_target_positions(Ghost::GhostMode::Chase);
+  } else if (command == "random") {
+    randomize_positions();
+  } else if (command == "red" || command == "pink" || command == "orange" || command == "cyan") {
+    string ghost_color = to_lower(command);  // Använd den uppdaterade to_lower funktionen
+    Point new_pos;
+    iss >> new_pos.x >> new_pos.y;
+    
+    for (auto& ghost : ghosts) {
+      string ghost_color_lowercase = to_lower(ghost->get_color());  // Använd den uppdaterade to_lower funktionen
+      
+      if (ghost_color_lowercase == ghost_color) {
+	ghost->set_position(new_pos);
+	break;
+      }
+    }
+  }
+}
+  
+  
+  void set_pacman_position(istringstream& iss) {
+    Point new_pos;
+    iss >> new_pos.x >> new_pos.y;
+    pacman.set_position(new_pos);
+  }
+  
+  void set_pacman_direction(istringstream& iss) {
+    Point new_dir;
+    iss >> new_dir.x >> new_dir.y;
+    pacman.set_direction(new_dir);
+  }
+  
+  void move_ghost(istringstream& iss) {
+    string ghost_color;
+    Point new_pos;
+    iss >> ghost_color >> new_pos.x >> new_pos.y;
+    
+    for (auto& ghost : ghosts) {
+      if (to_lower(ghost->get_color()) == ghost_color) {
+	ghost->set_position(new_pos);
+	break;
+      }
+    }
+  }
+  
+  void set_blinky_angry(istringstream& iss) {
+    string angry {};
+    iss >> angry;
+    bool is_angry = (angry == "true" || angry == "1");
+    
+    for (auto& ghost : ghosts) {
+      if (ghost->get_color() == "Red") {
+	Blinky* blinkyPtr = dynamic_cast<Blinky*>(ghost);
+	if (blinkyPtr != nullptr) {
+	  blinkyPtr->set_angry(is_angry);
+	  break;
+	}
+      }
+    }
+  }
+  
+void set_ghost_mode(Ghost::GhostMode mode) {
+    // Update all ghosts to the new mode
+    for (auto& ghost : ghosts) {
+        ghost->update_target_position(mode);
+    }
+}
+
+  string to_lower(const string& str) {
+    string lower_str;
+    for (char ch : str) {
+      lower_str += std::tolower(ch);
+    }
+    return lower_str;
+  }
+  
+  
+  void draw_map() {
+    cout << "+" << setfill('-') << setw(WIDTH * 2) << "-" << "+\n";
+    
+    for (int y = HEIGHT - 1; y >= 0; --y) {
+      cout << "|";
+      for (int x = 0; x < WIDTH; ++x) {
+	cout << to_draw(Point{x, y});
+      }
+      cout << "|\n";
+    }
+    
+    cout << "+" << setfill('-') << setw(WIDTH * 2) << "-" << "+" << endl;
+  }
+
+string to_draw(const Point& curr_pos) {
+  string to_draw = "  ";  // Start with empty representation
+  
+  // Check if any ghost's target position is at the current position and ghost itself is not there
+  for (const auto& ghost : ghosts) {
+    if (ghost->get_target_position() == curr_pos && ghost->get_position() != curr_pos) {
+      to_draw[1] = tolower(ghost->get_color()[0]);
+    }
+  }
+  
+  // Then, check if any ghost is at the current position
+  for (const auto& ghost : ghosts) {
+    if (ghost->get_position() == curr_pos) {
+      to_draw[0] = toupper(ghost->get_color()[0]);
+    }
+
+    if (ghost->get_target_position() == curr_pos && pacman.get_position() == curr_pos) {
+      to_draw[1] = tolower(ghost->get_color()[0]); // Visar målpositionen bredvid Pacman
+    }
+  }
+  
+  // Lastly, check if Pacman is at the current position
+  if (pacman.get_position() == curr_pos) {
+    to_draw[0] = '@';  // Pacman gets priority
+  }
+  
+  return to_draw;
+}
+  
+
+
+  Pacman pacman;
+  vector<Ghost*> ghosts;
+  
+};
+
+int main() {
+  Ghost_Tester gt;
+  gt.run();
+  return 0;
+}
