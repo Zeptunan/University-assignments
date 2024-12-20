@@ -1,0 +1,239 @@
+1. Vad är en auktoritativ namnserver?
+Det är den server som har den slutgiltiga informationen för en domän på grund av att den lagrar zonfiler för den domänen. 
+Det innebär att den kan ge det korrekta svaret direkt för sin egen data utan att behöva fråga andra servrar. 
+
+
+2. Vad är alternativet till en auktoritativ namnserver
+Är den första server man kontaktar när man söker upp ett domännamn. Den rekursivt söker efter domänen man söker 
+genom att vidarebefordra förfrågan till andra servrar tills den når en auktoritativ server.  
+
+
+3. Är det skillnad mellan en domän och en zon? Vilken skillnad isåfall?
+En domän är ett namn som representerar en plats på internet, medan en zon är den del av DNS som en auktoritativ namnserver ansvarar för.
+Om example.com är en domän, så är zonen example.com den avdelning där DNS-posterna för example.com och dess underdomäner lagras och hanteras. 
+Om en underdomän, som shop.example.com, har en egen namnserver, blir den en separat zon.
+
+
+4.Vad innebär rekursiv slagning? Iterativ? Hur vet DNS-servern du frågar om det är en rekursivt ställd fråga?
+Rekursiv uppslagning innebär att DNS-servern som tar emot förfrågan ansvarar för att hitta det slutgiltiga svaret. 
+Om den inte har svaret, frågar den vidare till andra DNS-servrar tills den får ett svar från en auktorativ namnserver. 
+
+Iterativ uppslagning innebär att DNS-servern endast ger en hänvsining till en annan server, så att klienten måste följa dessa 
+hänvisningar själv tills den hittar det slutgiltiga svaret. 
+
+När en DNS-förfrågan skickas kan klienten ange en rekursiv flagga i frågan. Om flaggan är aktiverad, förväntar sig klienten att
+DNS-servern ska göra en rekursiv uppslagning och hitta det slutgiltiga svaret. 
+
+
+5.I DNS delegerar vi ansvaret för olika zoner. Varför?
+För att sprida och organisera hanteringen av domännamn och resurser över flera servrar och administratörer 
+för skalbarhet, effektivitet, stabilitet och säkerhet. 
+
+
+6. Ovan beskriver vi hur man kommer fram till att liu.se har adressen 130.236.18.52 (och hela delegerings-hierarkin från root 
+till auktoriteten för .se-domänen, till liu.se). Hur sker en uppslagning ''åt andra hållet'', där man vill slå upp om adressen 
+130.236.18.52 motsvarar någon webbadress (enligt din DNS-server)? Du kan vilja läsa om reverse DNS.
+antar att frågan är: Hur gör man en reverse DNS-uppslagning?
+Reverse DNS-uppslagning är motsatsen till vanlig DNS-uppslagning där du börjar med domänennamn och vill hitta IP-adressen.
+istället börjar du med IP-adressen för att hitta domännamn. 
+$ host 130.236.18.52
+52.18.236.130.in-addr.arpa domain name pointer www.liu.se.
+
+
+Förklara kortfattat vad de olika delarna av utskriften innebär.
+HEADER: Visar grundläggande information om frågan, inklusive status och frågetyp (här: QUERY med status: NOERROR, vilket innebär att uppslagningen lyckades).
+
+QUESTION SECTION: Visar vilken fråga som skickades.
+
+ANSWER SECTION: Innehåller svaret på frågan. I detta fall returneras en A-post (IPv4-adress) för www.liu.se som är 130.236.18.52.
+
+Query time: Anger hur lång tid uppslagningen tog.
+
+SERVER: Visar vilken DNS-server som svarade (här 130.236.1.9 på port 53).
+
+WHEN: Tid och datum då uppslagningen gjordes.
+
+MSG SIZE: Anger storleken på svaret i byte.
+
+När du gör en query som till exempel dig ANY liu.se @ns4.liu.se kan du få flera olika sorters resource records (RR) tillbaka.
+A-record: Knyter ett domännamn till en IPv4-adress.
+AAAA-record: Knyter ett domännamn till en IPv6-adress.
+NS-record: Anger vilka namnservrar som ansvarar för domänen.
+MX-record: Specificerar e-postservrar för domänen.
+SOA-record: Start of Authority innehåller grundläggande information om domänen, som den primära namnservern och administrativa detaljer.
+
+
+Kör dig +trace www.google.com och förklara kortfattat vad som står.
+När man kör dig +trace www.google.com visas steg för steg hur DNS-uppslagning sker från rotservrarna ner till den auktoritativa namnservern för google.com. 
+Root-server: Startar uppslagningen och pekar mot .com-domänens servrar.
+.com TLD-server: Pekar vidare till google.com-domänens servrar.
+Auktoritativ server för google.com: Ger slutgiltiga svaret med IP-adressen för www.google.com – i detta fall 142.250.74.68.
+
+
+Hur sätter man önskad DNS-server på Linux?
+öppnar filen
+nano /etc/resolv.conf
+och ändrar nameserver med IP-adressen för den DNS-server man vill använda
+
+
+Vad är en SOA-post?
+En SOA-post (Start of Authority) är en DNS-post som innehåller grundläggande information om en DNS-zon 
+och dess auktoritativa namnserver. Den definierar också zonens administrativa information.
+
+
+
+Konfiguration och motivering/förklaring
+ 
+Börjar först med att installera DNS-servern bind9 som kan hantera och svara på DNS-förfrågningar: apt install bind9
+ 
+Agera auktoritet för er zon/Innehålla namn för alla era maskiner, och koppla deras namn till IP-adress.
+För att agera auktoritet för en zon, måste DNS-servern veta att den ansvarar för zonen och ha rätt information lagrad.
+Öppna och redigera /etc/bind/named.conf.local för att ange en zonfil: nano /etc/bind/named.conf.local
+lägg till följande: zone "gruppnamn.example.com" {
+    			type master;
+    			file "/etc/bind/db.gruppnamn.example.com";
+			};
+Detta talar om för bind att gruppnamn.example.com är master zonen och att information om zonen finns i filen 
+/etc/bind/db.gruppnamn.example.com.
+
+skapa en kopia av en mall för zonfiler för att använda som grund: cp /etc/bind/db.local /etc/bind/db.gruppnamn.example.com
+och sen redigera filen: nano /etc/bind/db.gruppnamn.example.com
+$TTL    604800
+@       IN      SOA     server.gruppnamn.example.com. admin.gruppnamn.example.com. (
+                          3         ; Serial
+                     604800         ; Refresh
+                      86400         ; Retry
+                    2419200         ; Expire
+                     604800 )       ; Negative Cache TTL
+; Nameserver
+        IN      NS      server.gruppnamn.example.com.
+@       IN      A       10.0.0.2
+
+; A records for your machines
+server          IN      A       10.0.0.2
+client-1        IN      A       10.0.0.3
+client-2        IN      A       10.0.0.4
+gw              IN      A       10.0.0.1
+
+SOA-post anger vem som är auktoritet för zonen
+NS-post pekar ut servern som hanterar zonen
+A-poster kopplar varje maskins domännamn till en IP-adress
+
+För att ladda om konfigurationen och tillämpa ändringarna starta om bind: systemctl restart bind9
+använd dig för att testa att din DNS-server svarar korrekt: dig @localhost gruppnamn.example.com
+Detta bekräftar att DNS-servern har rätt inställningar och kan svara auktorativt för gruppnamn.example.com
+
+Verifiera att DNS-servern är korrekt konfigurerad med dig:
+dig @localhost server.gruppnamn.example.com
+dig @localhost client-1.gruppnamn.example.com
+dig @localhost client-2.gruppnamn.example.com
+dig @localhost gw.gruppnamn.example.com
+
+Varje dig-fråga bör returnera den IP-adress som anges i zonfilen för respektive maskin. 
+
+
+
+
+Agera cache och rekurserare när frågor (queries) ställs från ert lokala nätverk, men ingen annan
+Redigera inställningarna i named.conf.options: nano /etc/bind/named.conf.options
+lägg till följande konfiguration:
+options {
+    directory "/var/cache/bind";
+
+    // Tillåt DNS-förfrågningar endast från det lokala nätverket
+    allow-query { 127.0.0.1; ::1; 10.0.0.0/24; };
+
+    // Tillåt rekursiva förfrågningar endast från det lokala nätverket
+    allow-recursion { 127.0.0.1; ::1; 10.0.0.0/24; };
+
+    // Aktivera DNSSEC för validering
+    dnssec-validation auto;
+
+    // Lyssna på alla IPv6-adresser
+    listen-on-v6 { any; };
+};
+
+allow-query: begränsar vilka som kan göra DNS-förfrågningar till servern. 
+allow-recursion: tillåter endast rekursiva DNS-uppslagningar för lokala IP-adresser.
+dnssec-validation auto: säkerställer att DNS-svar valideras enligt DNSSEC-standarder
+listen-on-v6: gör DNS-servern tillgänglig för förfrågningar via IPv6-nätverket, vilket möjliggör 
+DNS-uppslagningar från enheter som använder IPv6-adresser
+
+efter konfigurationerna starta om BIND för att tillämpa ändringar: systemctl restart bind9
+
+verifiera inställningarna med dig: dig @10.0.0.2 example.com
+upprepa kommandot direkt efter första frågan för att se en minskad Query time, vilket indikerar att caching är aktiv. 
+
+
+
+
+Hantera reverse DNS för alla era maskiner.
+konfigurera omvänd zon i named.conf.local: nano /etc/bind/named.conf.local
+lägg till:
+zone "0.0.10.in-addr.arpa" {
+    type master;
+    file "/etc/bind/db.10.0.0";
+};
+0.0.10.in.addr.arpa är den omvända zonen för IP-adresser som börjar med 10.0.0.x. 
+denna zon behövs för att hantera omvända uppslagningar för alla maskiner i det lokala nätverket. 
+
+skapa zonfilen som tidigare med: cp /etc/bind/db.127 /etc/bind/db.10.0.0
+redigera filen /etc/bind/db.10.0.0: nano /etc/bind/db.10.0.0
+anpassa innehållet:
+$TTL    604800
+@       IN      SOA     server.gruppnamn.example.com. admin.gruppnamn.example.com. (
+                          2         ; Serial
+                     604800         ; Refresh
+                      86400         ; Retry
+                    2419200         ; Expire
+                     604800 )       ; Negative Cache TTL
+; Nameserver för denna zon
+        IN      NS      server.gruppnamn.example.com.
+
+; PTR-poster för omvända uppslagningar
+1       IN      PTR     gw.gruppnamn.example.com.
+2       IN      PTR     server.gruppnamn.example.com.
+3       IN      PTR     client-1.gruppnamn.example.com.
+4       IN      PTR     client-2.gruppnamn.example.com.
+
+starta im bind: systemctl restart bind9
+
+verifiera omvänd DNS-konfiguration med dig:
+dig -x 10.0.0.1 @localhost
+dig -x 10.0.0.2 @localhost
+dig -x 10.0.0.3 @localhost
+dig -x 10.0.0.4 @localhost
+
+
+På routern kommer DHCP-klienten att nollställa era inställningar (samtidigt som den får en dynamisk IP-adress, 
+får den DNS-inställningar). Kolla på det finns en lämplig inställning i i /etc/dhcp/dhclient.conf för att se 
+till att ni kan använda er DNS-server också.
+
+för router och klient
+gå in på /dhcp/dhclient.conf: nano /etc/dhcp/dhclient.conf
+och ändra raden:#supersede domain-name "fugue.com home.vix.com";
+till: supersede domain-name-servers 10.0.0.2;
+Den här raden instruerar routern/klienten att använda 10.0.0.2 
+istället för att ta emot DNS-inställningar från en extern DHCP-server.
+
+
+
+
+Nu har ni kallat er zon för gruppnamn.example.com. Finns det något i DNS-protokollet som hindrar att ni istället 
+sade att ni var google och hade alla deras domäner? I någon utökning av protokollet? Om ni satte upp en falsk tjänst 
+och pekade adressen gmail.com till den via er DNS-server, är det något i DNS eller annat protokoll som skulle hjälpa en 
+användare som använder er DNS-server att upptäcka bluffen?
+
+Nej, det finns inget i DNS-protokollet som direkt hindrar någon från att skapa en bluffzon och påstå sig vara Google. 
+DNSSEC kan dock avslöja bluffen genom att validera digitala signaturer från den legitima auktoritativa servern. 
+Om DNSSEC används och bluffservern saknar rätt signaturer, skulle förfrågan misslyckas.
+
+
+
+Nu har ni skrivit zonfiler. Om ni skulle delegera auktoritet för users.gruppnamn.example.com 
+hade ni behövt lägga till några rader i er zon-fil. Vilka, och varför? (Ni kan fundera på delegering 
+av delar av reverse-zon, men utöver att lösningen blir ful, är det inte obligatoriskt.)
+
+För att delegera auktoritet för users.gruppnamn.example.com behöver vi lägga till en NS-post i 
+zonfilen som pekar på namnservern för den nya underzonen, samt en A-post som anger IP-adressen 
+för denna namnserver. Detta görs för att vidarebefordra ansvar och hantering av underzonen till en annan server.

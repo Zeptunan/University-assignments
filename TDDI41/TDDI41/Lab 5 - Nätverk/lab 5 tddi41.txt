@@ -1,0 +1,116 @@
+3.2 Övning 1
+Vad är kommandot för att skicka 5 paket till localhost?
+ping -c 5 localhost
+
+Vad är kommandot för att skicka 3 paket till localhost med 2 sekunders mellanrum mellan varje paket?
+ping -c 3 -i 2 localhost
+
+
+3.3 övning 2
+Vad är kommandot för att lista adresserna för alla nätverksinterface i datorn?
+ip addr
+
+Vad är kommandot för att ta nätverksinterfacet ens4 online?
+ip link set ens4 up
+
+Vad är kommandot för att ge nätverksinterfacet ens4 ip-adressen 192.168.1.2 med en 24-bitars nätmask?
+ip addr add 192.168.1.2/24 ens4
+
+Vad är kommandot för att visa routing-tabellen?
+ip route
+
+4.1 Nätverkskonfiguration
+IP-adresser, nätmask och gateway: Dessa konfigureras för varje maskin i filen /etc/network/interfaces.
+
+Nätmasken: Används för att definiera nätverket, och är i detta fall 255.255.255.0, vilket betyder att alla maskiner med samma första tre siffror tillhör samma nätverk.
+Gateway: Varje maskin har routerns ens4 IP-adress (10.0.0.1) som sin gateway. Detta gör att all trafik som ska utanför det lokala nätverket (eller mellan maskiner i olika nät) skickas via routern.
+Kommunikation mellan maskiner: När varje maskin har rätt IP-adress, nätmask och gateway, kan de nå routern och varandra. Du kan verifiera nätverkskopplingen genom att pinga andra maskiner.
+
+Exempel: För att testa om servern kan nå client-1, kör kommandot ping 10.0.0.3 (IP-adressen för client-1) från servern.
+Testa datakommunikation med Netcat: Netcat kan användas för att skicka och ta emot meddelanden mellan maskiner.
+
+Om du vill skicka ett meddelande från servern till client-1:
+På servern, kör: nc -l -p 12345 (där -l gör att programmet lyssnar på inkommande anslutningar och -p anger porten, i detta fall 12345).
+På client-1, anslut till servern genom att köra: nc 10.0.0.1 12345.
+Du kan nu skicka meddelanden genom att skriva i terminalen på client-1, som då visas på servern (t.ex. skriva "hej" på client-1 visas som "hej" på servern).
+
+
+4.2 Brandvägg
+1. Installation av paketet nftables på routern
+För att installera ett paket på Debian, använd kommandot apt install <paketnamn>. I detta fall installerar du nftables genom att skriva: apt install nftables
+
+2. Kontrollera installationen
+För att se om nftables är installerat, kan du lista alla installerade paket med: apt list --installed
+och leta efter nftables i listan. Alternativt kan du skriva: nft --version
+för att se om kommandot nft är tillgängligt.
+
+3. Aktivera nftables
+Efter installationen är nftables inaktiv. Aktivera brandväggen med: systemctl enable nftables
+och starta den med: systemctl start nftables
+
+4. Verifiera att brandväggen är aktiv
+För att kontrollera om nftables är aktivt och brandväggsreglerna laddade, använd något av följande kommandon: systemctl status nftables
+eller visa de aktuella brandväggsreglerna direkt med: nft list ruleset
+
+
+4.3 Ip-forwarding och NAT
+För att dina maskiner (server, client-1 och client-2) ska kunna nå internet via din router behöver vi konfigurera både IP-forwarding och IP-masquerading på routern.
+
+Steg 1: Aktivera IP-forwarding
+IP-forwarding är en process som gör att routern kan vidarebefordra trafik från ett nätverksinterface till ett annat enligt sin routing-tabell.
+
+Redigera sysctl.conf:
+Öppna systemkonfigurationsfilen sysctl.conf genom att skriva: nano /etc/sysctl.conf
+Leta upp raden som ser ut så här: #net.ipv4.ip_forward=1
+Ta bort # i början av raden för att avkommentera den, vilket aktiverar IP-forwarding.
+Ladda om konfigurationen:
+Spara filen och kör sedan följande kommando för att ladda om konfigurationen: sysctl -p /etc/sysctl.conf
+Verifiera inställningen:
+Kontrollera att IP-forwarding är aktivt genom att skriva: sysctl net.ipv4.ip_forward
+Utdata bör visa net.ipv4.ip_forward = 1.
+
+Steg 2: Konfigurera IP-masquerading (NAT)
+IP-masquerading är en typ av Network Address Translation (NAT) som döljer den interna IP-adressen för nätverkstrafik som lämnar din router.
+
+Skapa en NAT-tabell i nftables:
+Öppna /etc/nftables.conf för att göra konfigurationen permanent: nano /etc/nftables.conf
+Definiera NAT-regler i nftables.conf:
+Lägg till följande regler i nftables.conf för att skapa en NAT-tabell och aktivera IP-masquerading:
+
+table ip nat {
+    chain postrouting {
+        type nat hook postrouting priority srcnat;
+        oifname "ens3" masquerade
+    }
+}
+
+table ip nat - skapar en tabell för NAT-regler.
+chain postrouting - definierar en kedja för trafik som lämnar routern.
+oifname "ens3" masquerade - tillämpar masquerading för utgående trafik på interface ens3, vilket döljer interna IP-adresser.
+
+Ladda om nftables:
+Spara filen och ladda om nftables med: systemctl restart nftables
+Alternativt, för att aktivera ändringarna direkt, kör: nft list ruleset
+Detta kommando visar dina aktiva regler och verifierar att IP-masquerading är korrekt inställt.
+Efter dessa steg kommer IP-forwarding och NAT att vara aktiverade på routern, vilket tillåter de interna maskinerna att kommunicera med internet via routern.
+
+
+4.4 Värdnamn
+För att ställa in värdnamnet på en maskin kan du använda kommandot hostnamectl. 
+Öppna terminalen på respektive maskin (exempelvis på "client-1").
+Kör följande kommando för att ställa in värdnamnet: hostnamectl set-hostname client-1
+
+För att ställa in ett Fullständigt Kvalificerat Domännamn (FQDN) kan du redigera filen /etc/hosts på respektive maskin:
+Öppna terminalen och redigera /etc/hosts-filen: nano /etc/hosts
+Lägg till en rad som anger IP-adressen, FQDN och värdnamnet, t.ex.: 10.0.0.2 server.grupp13.liu.se server
+Spara och stäng filen. Detta gör att maskinen känner till sitt FQDN och kan använda det internt.
+
+4.5
+På varje maskin, gå in på nftables.conf och redigera: nano /etc/nftables.conf
+Grundläggande regel: Ange att all inkommande trafik blockeras som standard genom att sätta policy drop i input-kedjan
+Tillåt specifik trafik inom input-kedjan
+Tillåt etablerade och relaterade anslutningar: ct state established,related accept
+Tillåt ICMP-trafik (för att möjliggöra ping): ip protocol icmp accept
+Tillåt SSH på standardporten: tcp dport ssh accept
+Testa: Använd verktyg som ping, ssh, och nc för att säkerställa att de specifika typerna av trafik kan passera enligt reglerna, medan övrig trafik blockeras.
+Repetera för övriga maskiner: Använd samma brandväggskonfiguration på client-2, server, och router när client-1 fungerar som förväntat.

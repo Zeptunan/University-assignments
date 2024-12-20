@@ -1,0 +1,149 @@
+Varför NTP är stratifierat (har strata, som på engelska heter stratum)? Varför talar man inte bara direkt med någon referensserver?
+Hierarkisk stratum används för att hantera belastning, öka redunsansen och ge lokal åtkomst. 
+Hantera belastning: för att om alla enheter kommunicerar direkt med en stratum 0-server skulle servern bli överbelastad
+och inte kunna hantera förfrågningar. 
+Öka redundans: för att det finns fler mellannivå-servrar (stratum 1, stratum 2 osv) som fungerar som redunsans om en högre server
+blir otillgänglig. Systemet kommer fortfarande kunna vara tillgängligt även om en server slutar fungera. 
+Ge lokal åtkomst: 
+Lokala NTP-servrar på stratum 2 eller högre kan fungera som tidskällor för interna nätverk där tillgänglighet är viktigare än precision. 
+
+
+En NTP-klient brukar inte bara ändra systemklockan till en viss tid direkt, utan ökar/minskar hastigheten så att man når målet lite mjukare. Varför?
+En NTP-klient justerar tiden gradvis för att undvika problem som kan uppstå med en plötslig ändring, som inkonsekventa tidsstämplar, 
+störningar i tidskritiska applikationer och systeminstabilitet.
+Inkonsekventa tidsstämplar: Loggar kan bli oordnade eller bakåtgående, vilket försvårar felsökning och analys. 
+Störningar i tidskritiska applikationer: Applikationer som är beroende av korrekt tid, som databaser och schemaläggare, kan få fel eller krascha.
+Systeminstabilitet: Plötsliga tidsändringar kan störa processer och orsaka oväntat beteende i både operativsystemet och körande tjänster.
+
+
+Installera paketet ntp på er router. Kör ntpq -p och förklara vad de olika kolumnerna betyder, och hur man ska tolka att det finns 
+flera rader i tabellen. Ta med utdata från kommandot.
+root@gw:~# ntpq -p
+
+     remote           refid      st t when poll reach   delay   offset  jitter
+==============================================================================
+ 0.debian.pool.n .POOL.          16 p    -   64    0    0.000   +0.000   0.001
+ 1.debian.pool.n .POOL.          16 p    -   64    0    0.000   +0.000   0.001
+ 2.debian.pool.n .POOL.          16 p    -   64    0    0.000   +0.000   0.001
+ 3.debian.pool.n .POOL.          16 p    -   64    0    0.000   +0.000   0.001
+*192.36.143.134  .PPS.            1 u   60   64  177    4.042   +4.268  12.885
+-mmo2.ntp.netnod .PPS.            1 u   57   64  177    6.385   +3.262  13.195
++svl2.ntp.netnod .PPS.            1 u   66   64  177    8.691   +4.806  12.719
++time.cloudflare 10.128.8.73      3 u   64   64  177    4.709   +4.699  12.673
+#svl1.ntp.netnod .PPS.            1 u   62   64  177    8.441   +4.349  12.964
+#45.83.221.52    194.58.204.20    2 u   62   64  177   10.604   +5.605  12.966
++time.cloudflare 10.128.8.73      3 u   62   64  177    4.680   +4.282  12.892
+-193.182.111.13  193.11.166.52    2 u   56   64  177    3.972   +2.974  13.484
+#ntp4.flashdance 194.58.202.148   2 u   61   64  177    4.724   +3.807  13.197
+#h-98-128-175-45 194.58.203.197   2 u   64   64  177   12.494   +4.335  12.902
+-sth2.ntp.netnod .PPS.            1 u   60   64  177    4.223   +3.122  13.551
+#sth4.ntp.netnod .PPS.            1 u   62   64  177    4.307   +3.477  13.504
+#lul2.ntp.netnod .PPS.            1 u   62   64  177   15.102   +3.526  13.252
++ntp3.flashdance 194.58.202.20    2 u   65   64  177    4.844   +4.708  12.717
+-sth3.ntp.netnod .PPS.            1 u   57   64  177    4.106   +2.804  13.316
+-gbg2.ntp.netnod .PPS.            1 u   61   64  177    5.678   +3.832  13.192
+
+remote: Visar namnet eller IP-adressen för NTP-servern.
+.POOL. är grupper av servrar.
+en stjärna (*) anger den primära servern som används för att synkronisera tiden.
+
+refid: Referenskällan för NTP-servern, 
+
+st(Stratum): Stratum-nivån för servern. 
+	1: Direktkopplad till en referenskälla som en atomklocka.
+	2 och högre: Servern får sin tid från en Stratum 1-server. 
+
+t(Type): Typ av anslutning
+	u: Unicast.
+	m: Multicast.
+	l: Local (loopback).
+
+when: Tid sedan senaste synkronisering. 
+
+poll: Intervallet mellan tidsförfrågningar till servern. 
+
+reach: Ett åttabitars värde i oktal (0-377) som visar hur många framgångsrika förfrågningar som nyligen gjorts. 
+Högre värden är bättre (t.ex. 177 betyder 7 framgångsrika förfrågningar). 
+
+delay: Nätverksfördröjningen till servern i millisekunder. 
+
+offset: Skillnaden mellan systemets klocka och servern klocka i millisekunder. Nära noll är idealiskt. 
+
+jitter: Variationen i fördröjning mellan förfrågningar, mätt i milisekunder. Lägre värden indikerar en stabil anslutning. 
+
+Flera rader indikierar att NTP-server synkroniserar med flera tidskällor. Det ökar redundans och precision. 
+Stjärnan visar den aktuellt valda tidskällan.
+plus, minus och hash indikerar alternativa tidskällor som kan användas. 
+
+
+Konfigurering av routern och klienterna
+På routern:
+Installera ntp på routern: apt -y install ntp
+konfigurera /etc/ntp.conf genom att kommentera bort alla default.pool-raderna och lägg istället till "pool se.pool.ntp.org iburst"
+Lägg till "restrict 10.0.0.0/24 mask 255.255.255.255.0 nopeer"
+Tillåt att enheter i nätverket 10.0.0.0/24 får använda routern som NTP-server, men förhindra att dessa enheter försöker etablera en peer-relation 
+(dvs. de får inte ändra routerns klocka).
+uppdatera brandväggen för att acceptera trafik genom udp port 123 i /etc/nftables.conf: udp dport 123 accept
+starta om nftables: systemctl restart nftables 
+kontrollera nftables: nft list ruleset  
+table inet filter {
+	chain input {
+		type filter hook input priority filter; policy drop;
+		ct state established,related accept
+		ip protocol icmp accept
+		tcp dport 22 accept
+		udp dport 123 accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy accept;
+	}
+
+	chain output {
+		type filter hook output priority filter; policy accept;
+		udp dport 123 accept
+	}
+}
+table ip nat {
+	chain postrouting {
+		type nat hook postrouting priority srcnat; policy accept;
+		oifname "ens3" masquerade
+	}
+}
+root@gw:~# 
+
+starta ntp: systemctl start ntp
+kör ntpq -p:
+root@gw:~# ntpq -p
+     remote           refid      st t when poll reach   delay   offset  jitter
+==============================================================================
+ se.pool.ntp.org .POOL.          16 p    -   64    0    0.000   +0.000   0.001
++time.cloudflare 10.128.8.73      3 u   28   64  377    4.613   +0.284   0.192
+-109.120.135.172 192.36.143.130   2 u   60   64  377   10.965   +0.278   0.224
++ntp3.flashdance 194.58.202.20    2 u   38   64  377    5.208   +0.290   0.390
+-ntp7.flashdance 194.58.202.20    2 u    3   64  377    4.327   +0.392   0.129
+-h-98-128-175-45 194.58.204.197   2 u   42  128  377   11.819   +0.273   0.172
+-time100.stupi.s .PPS.            1 u   65   64  377    4.125   +0.008   0.154
+-ntp1.hjelmenter 192.36.143.150   2 u    1  128  377    8.753   +0.809   0.279
++ntp2.flashdance 193.11.166.52    2 u   64   64  377    4.407   +0.274   0.076
+*sth2.ntp.netnod .PPS.            1 u    4   64  377    3.962   +0.327   0.145
+root@gw:~# 
+
+Vi får nu tidsuppdatering från servrar i se.pool.ntp.org. 
+
+På klienterna: 
+Installera ntp på routern: apt -y install ntp
+Konfigurera /etc/ntp.conf: lägg till raden "server 10.0.0.1" 
+starta om ntp: systemctl restart ntp.
+uppdatera brandväggen i /etc/nftables.conf och lägg till udp dport 123 accept som på routern
+starta om nftables: systemctl restart nftables
+kontrollera att klienterna använder routern med "ntpq -p"
+root@client-1:~# ntpq -p
+     remote           refid      st t when poll reach   delay   offset  jitter
+==============================================================================
+*gw.allsh436.exa 194.58.202.148   2 u    3   64  377    1.035   +0.286   0.183
+root@client-1:~# 
+
+Vi ser att klienten får sin tidsinformation från routern (gw.allsh436.exa) men refid visar en annan ip-adress än routerns som
+visar att routern får sin tidsinformation från en annan server som är en server från se.pool.ntp.org. Stratum är 2 på klienten
+vilket är rimligt eftersom den får tidsinformation från routern som får sin tidsinformation från en stratum 1. 

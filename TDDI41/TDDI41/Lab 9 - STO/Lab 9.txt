@@ -1,0 +1,529 @@
+3.1
+Vad är syftet med /etc/fstab?
+/etc/fstab är en konfigurationsfil som listar vilka filsystem som ska monteras vid systemstart och hur de ska monteras. 
+Den innehåller information om partitioner, lagringsenheter och nätverksresurser samt deras monteringspunkter och alternativ.
+
+
+Vad används kommandot mke2fs (mkfs.ext{2..4}) till?
+mke2fs används för att skapa ett filsystem på en partition eller volym, t.ex. ext2, ext3 eller ext4.
+Exempel: mke2fs -t ext4 /dev/sdb1 skapar ett ext4-filsystem på /dev/sdb1.
+Skillnader mellan ext-versioner:
+ext2: Ingen journaling.
+ext3: Med journaling för bättre dataskydd.
+ext4: Stöd för större filer och förbättrad prestanda.
+
+
+Vad skriver kommandot df -h ut?
+df -h visar diskens kapacitet och användning i ett läsbart format (GB/MB).
+exempel utdata: 
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1        50G   20G   30G  40% /
+/dev/sdb1        10G    5G    5G  50% /data
+Filesystem: Enhet/Partition som används.
+Size: Total storlek 
+Used: Hur mycket som används.
+Avail: hur mycket utrymme som är ledigt. 
+Use%: Procentuell användning.
+Mounted on: Monteringspunkten. 
+
+
+Förklara vad kommandot mount -t ext3 /dev/sdb2 /mnt/media innebär
+Kommandot monterar en ext3-partition (/dev/sdb2) till monteringspunkten /mnt/media.
+mount: Huvudkommandot för montering.
+-t ext3: Anger att filsystemet är av typen ext3
+/dev/sdb2: den specifika partitionen (andra partitionen på disk b).
+/mnt/media: katalogen där filsystemet görs tillgängligt för användaren. 
+Efter körning blir filerna på /dev/sdb2 tillgängliga i /mnt/media
+
+
+
+
+###############################################################################################################################
+3.2 RAID
+Vad står förkortningen RAID för?
+RAID står för Redundant Array of Independent Disks. Det kombinerar flera fysiska diskar till en enhet 
+för att förbättra prestanda, säkerhet (redundans) eller kapacitet.
+
+
+Förklara i grova drag hur RAID-0 fungerar
+RAID-0 delar upp data i block och skriver dem över flera diskar för att förbättra prestanda genom parallell läsning/skrivning.
+Exempel 2 diskar i RAID-0: 
+Disk 1: A1, A3, A5
+Disk 2: A2, A4, A6
+Fördel: Snabbt och effektivt för stora filer.
+Nackdel: Ingen redundans – om en disk går sönder förloras all data.
+
+
+Förklara i grova drag hur RAID-1 fungerar
+RAID-1 speglar data mellan två eller fler diskar. Varje disk är en exakt kopia av den andra.
+exempel två diskar i RADI-1:
+Disk 1: A, B, C
+Disk 2: A, B, C
+Fördel: Skydd mot diskfel – systemet fortsätter fungera om en disk går sönder.
+Nackdel: Halverad effektiv lagringskapacitet.
+
+
+Vad innebär kommandot mdadm --stop /dev/md0 ?
+Kommandot stoppar en aktiv RAID-enhet (/dev/md0) som hanterasa av mdadm.
+
+
+Installera mdadm: apt install mdadm -y
+
+Skapa RAID-1 arrayen /dev/md0 av diskarna /dev/vda och /dev/vdb: 
+mdadm --create /dev/md0 --level=1 --raid-devices=2 /dev/vda /dev/vdb
+Verifiera status: 
+root@server:~# cat /proc/mdstat
+Personalities : [raid1] [raid0] [linear] [multipath] [raid6] [raid5] [raid4] [raid10] 
+md0 : active raid1 vda[0] vdb[1]
+      1046528 blocks super 1.2 [2/2] [UU]
+
+
+Skapa ett ext4 filsystem på /dev/md0:
+mkfs.ext4 /dev/md0
+Formaterar RAID-enheten med ext4-filsystem. Detta gör att RAID-enheten kan användas för att lagra data.
+kontrollera med "lsblk -f" och kolla under FSTYPE kolumnen för /dev/md0.
+ 
+
+Montera /dev/md0 under /mnt och verifiera storleken på disken:
+Skapa monteringspunkt: mkdir -p /mnt
+Montera enheten: mount /dev/md0 /mnt
+Verifiera storleken: df -h
+
+
+Avmontera /dev/md0:
+umount /mnt
+
+
+Skapa RAID-0 arrayen /dev/md1 av diskarna /dev/vdc och /dev/vdd:
+mdadm --create /dev/md1 --level=0 --raid-devices=2 /dev/vdc /dev/vdd
+Verifiera status: 
+cat /proc/mdstat
+Personalities : [raid0] [raid1] [linear] [multipath] [raid6] [raid5] [raid4] [raid10] 
+md0 : active raid1 vda[0] vdb[1]
+      1046528 blocks super 1.2 [2/2] [UU]
+      
+md1 : active raid0 vdd[1] vdc[0]
+      2093056 blocks super 1.2 512k chunks
+      
+unused devices: <none>
+root@server:~# 
+
+
+Skapa ett ext4 filsystem på /dev/md1: 
+mkfs.ext4 /dev/md1
+
+
+Montera /dev/md1 under /mnt och verifiera storleken på disken:
+Montera enheten: mount /dev/md1 /mnt
+Verifiera storleken: df -h
+
+
+Avmontera /dev/md1:
+umount /mnt
+
+
+
+
+###############################################################################################################################
+3.3 LVM
+Förklara följande begrepp: fysisk volym (PV: Physical Volume), volymgrupp (VG: Volume Group) och logisk volym (LV: Logical Volume) och hur de hänger ihop
+Fysisk volym (PV): En fysisk enhet, t.ex. en disk eller partition, som förbereds för användning i LVM.
+Volymgrupp (VG): En samling av PV som kombineras till en större lagringspool.
+Logisk volym (LV): En virtuell partition som skapas från en VG. Kan ändras dynamiskt och används som en vanlig partition.
+Sammanhang: PV är byggstenar, VG kombinerar PV till en lagringspool, och LV skapas från den poolen för användning.
+
+
+Vad är kommandot för att göra klart en fysisk volym för lvm?
+pvcreate /dev/vd(x)
+
+
+Vad är kommandot för att skapa en volymgrupp?
+vgcreate <volymgruppnamn> /dev/vd(x)
+
+
+Vad är kommandot för att utöka en volymgrupp med ytterligare en PV?
+vgextend <volymgruppnamn> /dev/vd(x)
+
+
+Hur skapar du en logisk volym på 100MB från en volymgrupp?
+lvcreate -L 100M -n <volymnamn> <volymgruppnamn>
+-L: Storlek på volymen
+-n: Namn på volymen.
+
+
+Installera lvm2:
+apt install lvm2 -y
+
+
+Initiera/förbered /dev/md0 och /dev/md1 för anvädning i LVM. (detta kommer ta bort filsystemet du skapade på dom):
+pvcreate /dev/md0
+pvcreate /dev/md1
+Förklaring: Konverterar diskarna till fysiska volymer för användning i LVM.
+
+
+Lägg till /dev/md0 till volymgruppen vgvirt:
+vgcreate vgvirt /dev/md0
+
+
+Utöka volymgruppen vgvirt med /dev/md1:
+vgextend vgvirt /dev/md1
+
+
+Skapa 2 logiska volymer lvvol1 och lvvol2:
+lvcreate -L 100M -n lvvol1 vgvirt
+lvcreate -L 100M -n lvvol2 vgvirt
+
+
+Formatera dina nya logiska volymer med ett ext4 filsystem och se till att de monteras in vid boot under /home1 respektive /home2
+Formatera med ext4:
+mkfs.ext4 /dev/vgvirt/lvvol1
+mkfs.ext4 /dev/vgvirt/lvvol2
+
+
+Skapa monteringspunkter:
+mkdir -p /home1 /home2
+
+
+Montera volymerna:
+mount /dev/vgvirt/lvvol1 /home1
+mount /dev/vgvirt/lvvol2 /home2
+
+Lägg till i /etc/fstab:
+/dev/vgvirt/lvvol1   /home1   ext4    defaults    0   2
+/dev/vgvirt/lvvol2   /home2   ext4    defaults    0   2
+
+
+Aktivera med mount -a:
+mount -a
+
+
+Verifiera monteringen:
+df -h
+Filesystem                 Size  Used Avail Use% Mounted on
+/dev/mapper/vgvirt-lvvol1   92M   14K   85M   1% /home1
+/dev/mapper/vgvirt-lvvol2   92M   14K   85M   1% /home2
+
+
+
+
+###############################################################################################################################
+3.4 Network File System (NFS)
+Konfigurera din server som en NFS-server (installera nödvändiga paket):
+
+
+på servern:
+apt install nfs-kernel-server -y
+
+Redigera /etc/default/nfs-kernel-server:
+nano /etc/default/nfs-kernel-server
+Lägg till:
+RPCNFSDOPTS="-N 2 -N 3"
+RPCMOUNTDOPTS="--manage-gids -N 2 -N 3"
+RPCNFSDOPTS: Stänger av NFSv2 och NFSv3 med -N 2 -N 3, eftersom vi endast använder NFSv4.
+NFSv4 arbetar via en enda port (2049), vilket förenklar nätverkskonfigurationen. 
+RPCMOUNTDOPTS: Hanterar monteringsförfrågningar från klienterna. 
+"--manage-gids": Gör det möjligt för servern att hantera flera grupp-ID:n (kanske överflödigt för den här labben)
+-N 2 -N 3: Samma syfte som ovan, för att stänga av NFSv2 och NFSv3. 
+
+På klienterna
+Installera NFS-klientverktyg: apt install nfs-common -y
+
+Redigera /etc/default/nfs-common: nano /etc/default/nfs-common
+Ändra följande rader: 
+NEED_STATD="no"
+NEED_IDMAPD="yes"
+NEED_STATD: hanterar "file locking" för att hindra att flera användare ändrar i samma fil så att ändringar är individuella.
+NEED_IDMPAD: Översätter användarnamn och gruppnamn mellan klient och server. 
+Behöver aktiveras eftersom NFSv4 fungerar med användarnamn och inte siffror (UID/GID)
+
+
+Konfigurera din server så att den exporterar /usr/local till alla era klienter
+på servern:
+Redigera /etc/exports: nano /etc/exports
+Lägg till: /usr/local 10.0.0.0/24(rw,sync,no_subtree_check)
+/etc/exports: huvudkonfigurationsfilen för NFS-servern där man definierar vilka kataloger som ska göras tillgängliga.
+rw: Tillåter läs- och skrivåtkomst.
+sync: Skriver data till disken direkt för att förhindra systemkrascher.
+no_subtree_check: Förbättrar prestanda genom att inaktivera underkatalogskontroller.
+
+
+Ladda om exporterna: exportfs -r
+Verifiera exporterna: exportfs -v
+utdata: /usr/local    	10.0.0.0/24(rw,wdelay,root_squash,no_subtree_check,sec=sys,rw,secure,root_squash,no_all_squash)
+
+
+Konfigurera era klienter så att de statiskt monterar in /usr/local från er server vid uppstart. 
+Öppna port 2049 på både servern och klienterna i nftables:
+nft add rule inet filter input tcp dport 2049 accept
+nft add rule inet filter input udp dport 2049 accept
+
+
+Skapa en monteringspunkt på varje klient:
+mkdir -p /mnt/nfs_usr_local
+Det här blir platsen där klienterna kan komma åt den delade katalogen /usr/local från servern
+
+
+Lägg till i /etc/fstab för automatisk montering vid uppstart: Redigera klienternas /etc/fstab:
+nano /etc/fstab
+<server>:<delad katalog> <lokal monteringspunkt> <filsystemstyp> <monteringsalternativ> <dump> <fsck>
+Lägg till följande rad:
+10.0.0.2:/usr/local   /mnt/nfs_local   nfs4    defaults    0   0
+10.0.0.2:/usr/local: Serverns IP och den delade katalogen.
+/mnt/nfs_usr_local: Monteringspunkt på klienten.
+nfs4: Filsystemstypen (NFS version 4).
+defaults: Monteringsalternativ (standardinställningar).
+0 0: Parametrar för dump och fsck (inte relevanta för NFS).
+
+Testa fstab-konfigurationen:
+mount -a
+
+
+Verifiera att delningen är monterad:
+df -h
+Filesystem           Size  Used Avail Use% Mounted on
+10.0.0.2:/usr/local   24G  2.0G   21G   9% /mnt/nfs_usr_local
+
+
+
+###############################################################################################################################
+3.5 Automatisk montering av kataloger (autofs och automount)
+Vad är en automount map?
+Det är en konfigrationsfil som beskriver vilka kataloger som ska monteras, var de ska monteras och hur det ska ske. 
+exempel: Om man vill att /home/user1 ska monteras från en NFS-server, kan map filen innehålla en rad som anger: 
+user1 -fstype=nfs4, rw server:/export/home/user1
+
+
+
+Vilket paket behöver du installera för att använda automount?
+för att använda automount: apt install autofs
+
+
+Vad är det för skillnad på direkta och indirekta automount maps?
+Indirekta automount maps: 
+Monterar underkataloger inom en viss basmonteringspunkt.
+exempel: Om basmonteringspunkter är /home, kan varje användares hemkatalog monteras som en underkatalog:
+/home/user1
+/home/user2
+i automount maps: 
+user1 -fstype=nfs4,rw server:/export/home/user1
+user2 -fstype=nfs4,rw server:/export/home/user2
+
+Direkta automount maps: 
+Monterar kataloger direkt på en angiven plats, utan en gemensam basmonteringspunkt.
+exempel: Det går att montera olika kataloger direkt som: 
+/mnt/project1
+/mnt/project2
+automount map:
+/mnt/project1 -fstype=nfs4,rw server:/export/project1
+/mnt/project2 -fstype=nfs4,rw server:/export/project2
+
+Indirekta maps används för en grupp av kataloger under en baspunkt.
+Direkta maps används för separata monteringspunkter.
+
+
+
+Vad heter huvudkonfigurations-filen för automount? (Detta är inte samma sak som auto.master)
+Huvudkonfigurationsfilen för automount är: /etc/autofs.conf
+
+
+
+Skapa två nya test-användare, men flytta en användares hemkatalog till /home2/$USERNAME och den andra användarens 
+hemkatalog till /home1/$USERNAME (du måste antagligen skapa katalogerna /home1 och /home2 först). Se till att inga 
+hemkataloger finns kvar i /home. Ändra inte hemkatalogens plats i användardatabasen.
+
+Skapa två nya testanvändare:
+useradd user1/user2
+root@server:~# ls /home
+student  user1  user2
+root@server:~# 
+
+
+Skapa nya kataloger för hemkatalogerna
+root@server:~# mkdir -p /home1
+root@server:~# mkdir -p /home2
+root@server:~# ls /home1 /home2
+/home1:
+<tomt>
+
+/home2:
+<tomt>
+
+
+Flytta användarnas hemkataloger
+root@server:~# mv /home/user1 /home1/
+root@server:~# mv /home/user2 /home2/
+root@server:~# ls /home1
+user1
+root@server:~# ls /home2
+user2
+root@server:~# ls /home
+student
+
+
+Ändra ägarskap och rättigheter för katalogerna
+root@server:~# chown user1:user1 /home1/user1
+root@server:~# chmod 700 /home1/user1
+root@server:~# chown user2:user2 /home2/user2
+root@server:~# chmod 700 /home2/user2
+root@server:~# ls -ld /home1/user1 /home2/user2
+drwx------ 2 user1 user1 4096 Dec 11 15:34 /home1/user1
+drwx------ 2 user2 user2 4096 Dec 11 15:34 /home2/user2
+chown (Change Ownership): ändrar helt ägare och/eller grupp för en fil/katalog
+chmod 700 (Change Permissions): ändrar behörigheter för en fil eller katalog.
+7 för ägaren: full behörighet
+0 för gruppen: ingen behörighet
+0 för andra: ingen behörighet
+
+
+Konfigurera din NFS-server för att uttryckligen exportera /home1 och /home2 med rätt behörigheter (läs/skriv-rättigheter, 
+root_squash) till dina klienter (och endast dina klienter). Uttryckligen betyder att ni ska skriva ut det, även om det är default-värdet.
+
+Redigera /etc/exports: Öppna filen /etc/exports och lägg till följande rader:
+/home1 10.0.0.3(rw,sync,no_subtree_check,root_squash)
+/home2 10.0.0.4(rw,sync,no_subtree_check,root_squash)
+/home1 10.0.0.4(rw,sync,no_subtree_check,root_squash)
+/home2 10.0.0.3(rw,sync,no_subtree_check,root_squash)
+root_squash: Förhindrar att root på klienten kan agera som root på servern. Istället mappas root till en mindre privilegierad användare på servern.
+sync: Skrivoperationer synkroniseras direkt till disken på servern innan de returnerar till klienten. 
+no_subtree_check: Inaktiverar kontrollen av att klienten endast har tillgång till den specifika katalog som exporteras.  
+
+utdata med kontroll: 
+root@server:~# nano /etc/exports
+root@server:~# exportfs -r
+root@server:~# exportfs -v
+/home1        	10.0.0.3(rw,wdelay,root_squash,no_subtree_check,sec=sys,rw,secure,root_squash,no_all_squash)
+/home2        	10.0.0.4(rw,wdelay,root_squash,no_subtree_check,sec=sys,rw,secure,root_squash,no_all_squash)
+/home1        	10.0.0.4(rw,wdelay,root_squash,no_subtree_check,sec=sys,rw,secure,root_squash,no_all_squash)
+/home2        	10.0.0.3(rw,wdelay,root_squash,no_subtree_check,sec=sys,rw,secure,root_squash,no_all_squash)
+/usr/local    	10.0.0.0/24(rw,wdelay,root_squash,no_subtree_check,sec=sys,rw,secure,root_squash,no_all_squash)
+root@server:~# 
+wdelay (write delay): Fördröjer skrivningar till disk om servern tror att fler skrivningar snart kommer.
+sec=sys: Betyder att säkerhetsautentisering görs med hjälp av UID och GID från klienten.
+secure: Kräver att anslutningar från klienter kommer från portar under 1024
+
+
+kontrollera inlogging: 
+root@server:~# login user1
+Password: 
+Linux server 5.10.0-15-amd64 #1 SMP Debian 5.10.120-1 (2022-06-09) x86_64
+
+The programs included with the Debian GNU/Linux system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+permitted by applicable law.
+Last login: Wed Dec 11 16:07:50 CET 2024 on pts/0
+$ echo $HOME
+/home/user1
+$ 
+
+root@server:~# login user2
+Password: 
+Linux server 5.10.0-15-amd64 #1 SMP Debian 5.10.120-1 (2022-06-09) x86_64
+
+The programs included with the Debian GNU/Linux system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+permitted by applicable law.
+Last login: Wed Dec 11 16:08:45 CET 2024 on pts/0
+$ echo $HOME
+/home/user2
+$ 
+
+
+
+Installera autofs på dina klienter och server:
+apt install autofs -y
+
+
+
+Konfigurera autofs så att den monterar /home/$USERNAME från användarens hemkatalog på NFS-servern. 
+Om användaren mytestuser har en hemkatalog där filerna ligger under /home2/mytestuser på servern, 
+ska den monteras under /home/mytestuser på klienten. Gör /home till en indirekt monteringspunkt - det vill 
+säga att automounter automatiskt monterar underkataloger för /home, men inte /home själv. Du behöver antagligen en post i LDAP per användare.
+
+på servern:
+lägg till automount schema i /etc/ldap/slapd.conf filen:
+include /etc/ldap/schema/autofs.schema
+
+och starta om slapd:
+/etc/init.d/slapd restart
+
+konvertera autofs-ldap.schema till LDIF-format
+ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/ldap/schema/autofs-ldap.ldif
+
+Skapa en LDIF-fil för användare och automount:
+nano all_in_one.ldif
+dn: ou=admin,dc=allsh436,dc=example,dc=com
+ou: admin
+objectClass: top
+objectClass: organizationalUnit
+
+dn: ou=automount,ou=admin,dc=allsh436,dc=example,dc=com
+ou: automount
+objectClass: top
+objectClass: organizationalUnit
+
+# Automount master map
+dn: ou=auto.master,ou=automount,ou=admin,dc=allsh436,dc=example,dc=com
+ou: auto.master
+objectClass: top
+objectClass: automountMap
+
+dn: cn=/home,ou=auto.master,ou=automount,ou=admin,dc=allsh436,dc=example,dc=com
+cn: /home
+objectClass: top
+objectClass: automount
+automountInformation: ldap:ou=auto.home,ou=automount,ou=admin,dc=allsh436,dc=example,dc=com --timeout=60 --ghost
+
+# Automount specific för mytestuser
+dn: ou=auto.home,ou=automount,ou=admin,dc=allsh436,dc=example,dc=com
+ou: auto.home
+objectClass: top
+objectClass: automountMap
+
+# Skapa användaren
+dn: uid=mytestuser,ou=people,dc=allsh436,dc=example,dc=com
+objectClass: inetOrgPerson
+objectClass: posixAccount
+uid: mytestuser
+sn: TestUser
+cn: My Test User
+uidNumber: 2001
+gidNumber: 2001
+homeDirectory: /home/mytestuser
+loginShell: /bin/bash
+
+dn: cn=mytestuser,ou=auto.home,ou=automount,ou=admin,dc=allsh436,dc=example,dc=com
+cn: mytestuser
+objectClass: top
+objectClass: automount
+automountInformation: -fstype=nfs4,rw 10.0.0.2:/home2/mytestuser
+
+
+på klienterna
+Installera autofs och autofs-ldap:
+apt install autofs autofs-ldap
+
+Justera nsswitch.conf:
+nano /etc/nsswitch.conf
+Lägg till följande rad:
+automount: files ldap
+
+Konfigurera autofs för LDAP:
+nano /etc/default/autofs
+Lägg till följande:
+MASTER_MAP_NAME="ou=auto.master,ou=automount,ou=admin,dc=allsh436,dc=example,dc=com"
+LDAP_URI="ldap://10.0.0.2"
+SEARCH_BASE="ou=automount,ou=admin,dc=allsh436,dc=example,dc=com"
+
+MAP_OBJECT_CLASS="automountMap"
+ENTRY_OBJECT_CLASS="automount"
+MAP_ATTRIBUTE="ou"
+ENTRY_ATTRIBUTE="cn"
+VALUE_ATTRIBUTE="automountInformation"
+
+LOGGING="verbose"
